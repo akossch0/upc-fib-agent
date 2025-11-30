@@ -1,0 +1,57 @@
+[project]
+name = "upc-fib-agent"
+version = "0.1.0"
+description = ""
+requires-python = ">=3.13"
+dependencies = [
+    "deepagents>=0.2.8",
+    "langchain-google-vertexai>=3.1.0",
+    "langgraph-cli[inmem]>=0.4.7",
+    "langsmith>=0.4.49",
+    "tavily-python>=0.7.13",
+]
+
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+sources = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = ["UP045", "UP007"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.7",
+    "isort",
+    "pytest",
+    "pre-commit",
+]
