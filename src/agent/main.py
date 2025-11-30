@@ -1,10 +1,9 @@
-import os
 from typing import Literal
 
 from deepagents import create_deep_agent
 from tavily import TavilyClient
 
-tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+tavily_client = TavilyClient()
 
 
 def internet_search(
