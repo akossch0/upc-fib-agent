@@ -77,9 +77,34 @@ This will open a browser window and log you in to Langsmith. There in the sideba
 ```
 .
 ├── src/              # Python source code
+│   ├── agent/        # Agent implementation
+│   ├── api/          # FIB API client
+│   ├── auth/         # OAuth authentication
+│   ├── mcp/          # MCP server
+│   ├── models/       # Type definitions
+│   └── tools/        # Agent tools
+├── scripts/          # Utility scripts (see scripts/README.md)
+├── evaluation/       # Evaluation dataset and results
 ├── pyproject.toml    # Project configuration and dependencies
 └── README.md         # This file
 ```
+
+## Evaluation
+
+Run the agent on evaluation questions to test performance:
+
+```bash
+# Run inference on all questions
+make inference
+
+# Run on public questions only (no auth required)
+make inference-public
+
+# Limit to first N questions for testing
+make inference LIMIT=5
+```
+
+For detailed usage including custom model support (Ollama, OpenAI, Anthropic), see [scripts/README.md](scripts/README.md).
 
 ## Development
 
