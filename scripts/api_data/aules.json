@@ -1,0 +1,250 @@
+[
+  {
+    "id": "**",
+    "reserves": "https://api.fib.upc.edu/v2/aules/**/reserves/"
+  },
+  {
+    "id": "A1S101",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A1S101/reserves/"
+  },
+  {
+    "id": "A4002",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A4002/reserves/"
+  },
+  {
+    "id": "A5001",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5001/reserves/"
+  },
+  {
+    "id": "A5002",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5002/reserves/"
+  },
+  {
+    "id": "A5101",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5101/reserves/"
+  },
+  {
+    "id": "A5102",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5102/reserves/"
+  },
+  {
+    "id": "A5103",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5103/reserves/"
+  },
+  {
+    "id": "A5104",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5104/reserves/"
+  },
+  {
+    "id": "A5105",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5105/reserves/"
+  },
+  {
+    "id": "A5106",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5106/reserves/"
+  },
+  {
+    "id": "A5201",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5201/reserves/"
+  },
+  {
+    "id": "A5202",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5202/reserves/"
+  },
+  {
+    "id": "A5203",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5203/reserves/"
+  },
+  {
+    "id": "A5204",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5204/reserves/"
+  },
+  {
+    "id": "A5205",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5205/reserves/"
+  },
+  {
+    "id": "A5206",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5206/reserves/"
+  },
+  {
+    "id": "A5E01",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5E01/reserves/"
+  },
+  {
+    "id": "A5E02",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5E02/reserves/"
+  },
+  {
+    "id": "A5S102",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S102/reserves/"
+  },
+  {
+    "id": "A5S103",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S103/reserves/"
+  },
+  {
+    "id": "A5S104",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S104/reserves/"
+  },
+  {
+    "id": "A5S105",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S105/reserves/"
+  },
+  {
+    "id": "A5S108",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S108/reserves/"
+  },
+  {
+    "id": "A5S109",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S109/reserves/"
+  },
+  {
+    "id": "A5S111",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S111/reserves/"
+  },
+  {
+    "id": "A5S113",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A5S113/reserves/"
+  },
+  {
+    "id": "A6001",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6001/reserves/"
+  },
+  {
+    "id": "A6002",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6002/reserves/"
+  },
+  {
+    "id": "A6101",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6101/reserves/"
+  },
+  {
+    "id": "A6102",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6102/reserves/"
+  },
+  {
+    "id": "A6103",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6103/reserves/"
+  },
+  {
+    "id": "A6104",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6104/reserves/"
+  },
+  {
+    "id": "A6105",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6105/reserves/"
+  },
+  {
+    "id": "A6106",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6106/reserves/"
+  },
+  {
+    "id": "A6201",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6201/reserves/"
+  },
+  {
+    "id": "A6202",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6202/reserves/"
+  },
+  {
+    "id": "A6203",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6203/reserves/"
+  },
+  {
+    "id": "A6204",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6204/reserves/"
+  },
+  {
+    "id": "A6205",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6205/reserves/"
+  },
+  {
+    "id": "A6206",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6206/reserves/"
+  },
+  {
+    "id": "A6E01",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6E01/reserves/"
+  },
+  {
+    "id": "A6E02",
+    "reserves": "https://api.fib.upc.edu/v2/aules/A6E02/reserves/"
+  },
+  {
+    "id": "B4002",
+    "reserves": "https://api.fib.upc.edu/v2/aules/B4002/reserves/"
+  },
+  {
+    "id": "B5S101",
+    "reserves": "https://api.fib.upc.edu/v2/aules/B5S101/reserves/"
+  },
+  {
+    "id": "B5S201",
+    "reserves": "https://api.fib.upc.edu/v2/aules/B5S201/reserves/"
+  },
+  {
+    "id": "B5S202",
+    "reserves": "https://api.fib.upc.edu/v2/aules/B5S202/reserves/"
+  },
+  {
+    "id": "C5011",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C5011/reserves/"
+  },
+  {
+    "id": "C5S202",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C5S202/reserves/"
+  },
+  {
+    "id": "C5S203",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C5S203/reserves/"
+  },
+  {
+    "id": "C6003",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C6003/reserves/"
+  },
+  {
+    "id": "C6S301",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C6S301/reserves/"
+  },
+  {
+    "id": "C6S302",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C6S302/reserves/"
+  },
+  {
+    "id": "C6S303",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C6S303/reserves/"
+  },
+  {
+    "id": "C6S306",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C6S306/reserves/"
+  },
+  {
+    "id": "C6S308",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C6S308/reserves/"
+  },
+  {
+    "id": "C6S309",
+    "reserves": "https://api.fib.upc.edu/v2/aules/C6S309/reserves/"
+  },
+  {
+    "id": "D3004",
+    "reserves": "https://api.fib.upc.edu/v2/aules/D3004/reserves/"
+  },
+  {
+    "id": "D6003",
+    "reserves": "https://api.fib.upc.edu/v2/aules/D6003/reserves/"
+  },
+  {
+    "id": "D6003bis",
+    "reserves": "https://api.fib.upc.edu/v2/aules/D6003bis/reserves/"
+  },
+  {
+    "id": "D6004",
+    "reserves": "https://api.fib.upc.edu/v2/aules/D6004/reserves/"
+  },
+  {
+    "id": "UPF Classroom",
+    "reserves": "https://api.fib.upc.edu/v2/aules/UPF%20Classroom/reserves/"
+  }
+]

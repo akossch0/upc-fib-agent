@@ -1,0 +1,191 @@
+[
+  {
+    "id": "2015Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2015Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2015Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2015Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2015Q1/assignatures/"
+  },
+  {
+    "id": "2015Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2015Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2015Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2015Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2015Q2/assignatures/"
+  },
+  {
+    "id": "2016Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2016Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2016Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2016Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2016Q2/assignatures/"
+  },
+  {
+    "id": "2017Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2017Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2017Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2017Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2017Q1/assignatures/"
+  },
+  {
+    "id": "2017Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2017Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2017Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2017Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2017Q2/assignatures/"
+  },
+  {
+    "id": "2018Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2018Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2018Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2018Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2018Q1/assignatures/"
+  },
+  {
+    "id": "2018Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2018Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2018Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2018Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2018Q2/assignatures/"
+  },
+  {
+    "id": "2019Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2019Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2019Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2019Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2019Q1/assignatures/"
+  },
+  {
+    "id": "2019Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2019Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2019Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2019Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2019Q2/assignatures/"
+  },
+  {
+    "id": "2020Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2020Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2020Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2020Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2020Q1/assignatures/"
+  },
+  {
+    "id": "2020Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2020Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2020Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2020Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2020Q2/assignatures/"
+  },
+  {
+    "id": "2021Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2021Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2021Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2021Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2021Q1/assignatures/"
+  },
+  {
+    "id": "2021Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2021Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2021Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2021Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2021Q2/assignatures/"
+  },
+  {
+    "id": "2022Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2022Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2022Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2022Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2022Q1/assignatures/"
+  },
+  {
+    "id": "2022Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2022Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2022Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2022Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2022Q2/assignatures/"
+  },
+  {
+    "id": "2023Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2023Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2023Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2023Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2023Q1/assignatures/"
+  },
+  {
+    "id": "2023Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2023Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2023Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2023Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2023Q2/assignatures/"
+  },
+  {
+    "id": "2024Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2024Q1/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2024Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2024Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2024Q1/assignatures/"
+  },
+  {
+    "id": "2024Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2024Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2024Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2024Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2024Q2/assignatures/"
+  },
+  {
+    "id": "2025Q1",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2025Q1/",
+    "actual": "S",
+    "actual_horaris": "S",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2025Q1/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2025Q1/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2025Q1/assignatures/"
+  },
+  {
+    "id": "2025Q2",
+    "url": "https://api.fib.upc.edu/v2/quadrimestres/2025Q2/",
+    "actual": "N",
+    "actual_horaris": "N",
+    "classes": "https://api.fib.upc.edu/v2/quadrimestres/2025Q2/classes/",
+    "examens": "https://api.fib.upc.edu/v2/quadrimestres/2025Q2/examens/",
+    "assignatures": "https://api.fib.upc.edu/v2/quadrimestres/2025Q2/assignatures/"
+  }
+]
