@@ -556,6 +556,7 @@
             
             // Load data for selected evals
             const selectedList = availableEvals.filter(ev => selectedEvals.has(ev.id));
+            const failedLoads = [];
             
             for (const ev of selectedList) {
                 if (!loadedData[ev.id]) {
@@ -565,6 +566,10 @@
                             fetch(ev.inferencePath)
                         ]);
                         
+                        if (!evalResp.ok || !infResp.ok) {
+                            throw new Error(`HTTP error: eval=${evalResp.status}, inference=${infResp.status}`);
+                        }
+                        
                         loadedData[ev.id] = {
                             eval: await evalResp.json(),
                             inference: await infResp.json(),
@@ -572,6 +577,7 @@
                         };
                     } catch (e) {
                         console.error(`Failed to load ${ev.id}:`, e);
+                        failedLoads.push(ev.displayName);
                     }
                 }
             }
@@ -579,7 +585,19 @@
             btn.disabled = false;
             btn.textContent = 'Compare Selected';
             
-            renderComparison(selectedList);
+            // Filter to only successfully loaded evaluations
+            const loadedList = selectedList.filter(ev => loadedData[ev.id]);
+            
+            if (failedLoads.length > 0) {
+                alert(`Failed to load: ${failedLoads.join(', ')}. These will be excluded from comparison.`);
+            }
+            
+            if (loadedList.length < 2) {
+                alert('Need at least 2 successfully loaded evaluations to compare.');
+                return;
+            }
+            
+            renderComparison(loadedList);
         }
         
         function renderComparison(selectedList) {

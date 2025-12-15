@@ -1,16 +1,39 @@
 """
 Temporary script to analyze evaluation results and find potential grading issues.
+
+Usage:
+    python analysis_script.py <evaluation_file>
+
+Example:
+    python analysis_script.py results/evaluation_gemini-2.5-flash_20251214_172328_20251214_181109.json
 """
 
+import argparse
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 
-EVAL_FILE = Path(__file__).parent / "results" / "evaluation_gemini-2.5-flash_20251214_172328_20251214_181109.json"
+
+def get_available_evaluation_files() -> list[Path]:
+    """Return list of evaluation JSON files in the results directory."""
+    results_dir = Path(__file__).parent / "results"
+    if not results_dir.exists():
+        return []
+    return sorted(results_dir.glob("evaluation_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
 
 
-def load_data():
-    with open(EVAL_FILE) as f:
+def load_data(eval_file: Path) -> dict:
+    if not eval_file.exists():
+        print(f"Error: Evaluation file not found: {eval_file}", file=sys.stderr)
+        available = get_available_evaluation_files()
+        if available:
+            print("\nAvailable evaluation files:", file=sys.stderr)
+            for f in available:
+                print(f"  - {f.name}", file=sys.stderr)
+        sys.exit(1)
+
+    with open(eval_file) as f:
         return json.load(f)
 
 
@@ -209,8 +232,20 @@ def analyze_specific_questions(data):
 
 
 def main():
-    data = load_data()
-    print(f"Loaded {len(data['results'])} evaluation results")
+    parser = argparse.ArgumentParser(description="Analyze evaluation results and find potential grading issues.")
+    parser.add_argument(
+        "evaluation_file",
+        type=Path,
+        help="Path to the evaluation JSON file (e.g., results/evaluation_*.json)",
+    )
+    args = parser.parse_args()
+
+    eval_file = args.evaluation_file
+    if not eval_file.is_absolute():
+        eval_file = Path(__file__).parent / eval_file
+
+    data = load_data(eval_file)
+    print(f"Loaded {len(data['results'])} evaluation results from {args.evaluation_file}")
     print(f"Summary scores: {data['summary']['avg_scores']}")
 
     analyze_error_handling_issues(data)
