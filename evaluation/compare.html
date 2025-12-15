@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Evaluations - FIB Agent</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-card);
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); color: white; }
+        
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Selection Panel */
+        .selection-panel {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: start;
+        }
+        
+        .eval-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .eval-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg);
+        }
+        
+        .eval-checkbox:hover { border-color: var(--primary); }
+        .eval-checkbox.selected { border-color: var(--primary); background: rgba(59, 130, 246, 0.1); }
+        
+        .eval-checkbox input { display: none; }
+        
+        .eval-checkbox .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .eval-checkbox .name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .eval-checkbox .date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        /* Loading & Error */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            gap: 1rem;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state h3 { margin-bottom: 0.5rem; color: var(--text); }
+        
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+        
+        .chart-container.radar { height: 400px; }
+        
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .comparison-table th {
+            background: var(--bg);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+        
+        .comparison-table th:first-child,
+        .comparison-table td:first-child {
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        .comparison-table tbody tr:hover { background: var(--bg); }
+        
+        .score-cell {
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .score-cell.best { background: rgba(16, 185, 129, 0.2); color: #059669; }
+        .score-cell.worst { background: rgba(239, 68, 68, 0.2); color: #dc2626; }
+        
+        [data-theme="dark"] .score-cell.best { color: #34d399; }
+        [data-theme="dark"] .score-cell.worst { color: #f87171; }
+        
+        .diff-indicator {
+            font-size: 0.75rem;
+            margin-left: 0.25rem;
+        }
+        
+        .diff-positive { color: #059669; }
+        .diff-negative { color: #dc2626; }
+        
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .summary-card {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .summary-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .summary-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .summary-card .model {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        /* Question-level comparison */
+        .question-diff-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .question-diff-table th,
+        .question-diff-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        
+        .question-diff-table th {
+            background: var(--bg);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        
+        .question-text {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .hidden { display: none !important; }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        
+        .tab:hover { border-color: var(--primary); color: var(--primary); }
+        .tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .selection-panel { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚖️ Compare Evaluations</h1>
+            <div class="header-controls">
+                <a href="visualize.html" class="btn">📊 Dashboard</a>
+                <button class="btn" onclick="toggleTheme()">🌓</button>
+            </div>
+        </header>
+        
+        <!-- Selection Panel -->
+        <div class="section">
+            <h2 class="section-title">📁 Select Evaluations to Compare</h2>
+            <div class="selection-panel">
+                <div class="eval-checkboxes" id="eval-checkboxes">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Discovering evaluations...</p>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="compareSelected()" id="compare-btn" disabled>
+                    Compare Selected
+                </button>
+            </div>
+        </div>
+        
+        <!-- Comparison Content -->
+        <div id="comparison-content" class="hidden">
+            <!-- Summary -->
+            <div class="summary-grid" id="summary-grid"></div>
+            
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="section">
+                    <h2 class="section-title">🎯 Overall Metrics Comparison</h2>
+                    <div class="chart-container radar">
+                        <canvas id="radar-chart"></canvas>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2 class="section-title">📊 Metrics Bar Comparison</h2>
+                    <div class="chart-container">
+                        <canvas id="bar-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="section">
+                    <h2 class="section-title">📈 Score Distribution</h2>
+                    <div class="chart-container">
+                        <canvas id="distribution-chart"></canvas>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2 class="section-title">🏷️ By Category</h2>
+                    <div class="chart-container">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Comparison Table -->
+            <div class="section">
+                <h2 class="section-title">📋 Detailed Metrics Comparison</h2>
+                <div style="overflow-x: auto;">
+                    <table class="comparison-table" id="metrics-table"></table>
+                </div>
+            </div>
+            
+            <!-- Question-level Differences -->
+            <div class="section">
+                <h2 class="section-title">🔍 Biggest Differences by Question</h2>
+                <div class="tabs" id="diff-tabs">
+                    <button class="tab active" onclick="showDiffTab('biggest')">Biggest Gaps</button>
+                    <button class="tab" onclick="showDiffTab('improved')">Most Improved</button>
+                    <button class="tab" onclick="showDiffTab('regressed')">Regressed</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="question-diff-table" id="diff-table"></table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-state" class="section">
+            <div class="empty-state">
+                <h3>Select at least 2 evaluations to compare</h3>
+                <p>Check the boxes above to select which evaluation runs you want to compare.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+        const METRICS = ['relevance', 'helpfulness', 'conciseness', 'structure', 'tone', 'error_handling', 'tool_appropriateness'];
+        const METRIC_LABELS = {
+            relevance: 'Relevance',
+            helpfulness: 'Helpfulness', 
+            conciseness: 'Conciseness',
+            structure: 'Structure',
+            tone: 'Tone',
+            error_handling: 'Error Handling',
+            tool_appropriateness: 'Tool Approp.'
+        };
+        
+        let availableEvals = [];
+        let selectedEvals = new Set();
+        let loadedData = {};
+        let charts = {};
+        let currentDiffTab = 'biggest';
+        
+        async function init() {
+            await discoverEvaluations();
+            renderCheckboxes();
+        }
+        
+        async function discoverEvaluations() {
+            const basePaths = ['results/', '', './results/'];
+            
+            for (const base of basePaths) {
+                try {
+                    const resp = await fetch(base);
+                    if (!resp.ok) continue;
+                    
+                    const text = await resp.text();
+                    const evalMatches = [...text.matchAll(/href="(evaluation_[^"]+\.json)"/g)];
+                    const inferenceMatches = [...text.matchAll(/href="(inference_[^"]+\.json)"/g)];
+                    
+                    if (evalMatches.length === 0) continue;
+                    
+                    for (const evalMatch of evalMatches) {
+                        const evalFile = evalMatch[1];
+                        const parts = evalFile.match(/evaluation_(.+?)_(\d{8}_\d{6})_(\d{8}_\d{6})\.json/);
+                        
+                        if (parts) {
+                            const model = parts[1];
+                            const inferenceTs = parts[2];
+                            const evalTs = parts[3];
+                            
+                            const expectedInference = `inference_${model}_${inferenceTs}.json`;
+                            const hasInference = inferenceMatches.some(m => m[1] === expectedInference);
+                            
+                            if (hasInference) {
+                                availableEvals.push({
+                                    id: `${model}_${inferenceTs}`,
+                                    model,
+                                    inferenceTs,
+                                    evalTs,
+                                    evalPath: base + evalFile,
+                                    inferencePath: base + expectedInference,
+                                    displayName: model,
+                                    displayDate: formatTimestamp(inferenceTs)
+                                });
+                            }
+                        }
+                    }
+                    
+                    if (availableEvals.length > 0) break;
+                } catch (e) { /* continue */ }
+            }
+            
+            availableEvals.sort((a, b) => b.inferenceTs.localeCompare(a.inferenceTs));
+        }
+        
+        function formatTimestamp(ts) {
+            const match = ts.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
+            if (!match) return ts;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const [, year, month, day, hour, min] = match;
+            return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${hour}:${min}`;
+        }
+        
+        function renderCheckboxes() {
+            const container = document.getElementById('eval-checkboxes');
+            
+            if (availableEvals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No evaluation files found. Run some evaluations first!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = availableEvals.map((ev, idx) => `
+                <label class="eval-checkbox" data-id="${ev.id}">
+                    <input type="checkbox" onchange="toggleSelection('${ev.id}')">
+                    <span class="color-dot" style="background: ${COLORS[idx % COLORS.length]}"></span>
+                    <span>
+                        <span class="name">${ev.displayName}</span><br>
+                        <span class="date">${ev.displayDate}</span>
+                    </span>
+                </label>
+            `).join('');
+        }
+        
+        function toggleSelection(id) {
+            const checkbox = document.querySelector(`.eval-checkbox[data-id="${id}"]`);
+            
+            if (selectedEvals.has(id)) {
+                selectedEvals.delete(id);
+                checkbox.classList.remove('selected');
+            } else {
+                selectedEvals.add(id);
+                checkbox.classList.add('selected');
+            }
+            
+            document.getElementById('compare-btn').disabled = selectedEvals.size < 2;
+        }
+        
+        async function compareSelected() {
+            if (selectedEvals.size < 2) return;
+            
+            const btn = document.getElementById('compare-btn');
+            btn.disabled = true;
+            btn.textContent = 'Loading...';
+            
+            // Load data for selected evals
+            const selectedList = availableEvals.filter(ev => selectedEvals.has(ev.id));
+            
+            for (const ev of selectedList) {
+                if (!loadedData[ev.id]) {
+                    try {
+                        const [evalResp, infResp] = await Promise.all([
+                            fetch(ev.evalPath),
+                            fetch(ev.inferencePath)
+                        ]);
+                        
+                        loadedData[ev.id] = {
+                            eval: await evalResp.json(),
+                            inference: await infResp.json(),
+                            meta: ev
+                        };
+                    } catch (e) {
+                        console.error(`Failed to load ${ev.id}:`, e);
+                    }
+                }
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Compare Selected';
+            
+            renderComparison(selectedList);
+        }
+        
+        function renderComparison(selectedList) {
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('comparison-content').classList.remove('hidden');
+            
+            // Destroy existing charts
+            Object.values(charts).forEach(c => c.destroy());
+            charts = {};
+            
+            renderSummary(selectedList);
+            renderRadarChart(selectedList);
+            renderBarChart(selectedList);
+            renderDistributionChart(selectedList);
+            renderCategoryChart(selectedList);
+            renderMetricsTable(selectedList);
+            renderDiffTable(selectedList);
+        }
+        
+        function renderSummary(selectedList) {
+            const container = document.getElementById('summary-grid');
+            
+            // Find best overall
+            const overallScores = selectedList.map(ev => {
+                const data = loadedData[ev.id];
+                const avg = Object.values(data.eval.summary.avg_scores).reduce((a, b) => a + b, 0) / METRICS.length;
+                return { ev, avg };
+            }).sort((a, b) => b.avg - a.avg);
+            
+            const best = overallScores[0];
+            const worst = overallScores[overallScores.length - 1];
+            const diff = ((best.avg - worst.avg) * 100).toFixed(1);
+            
+            container.innerHTML = `
+                <div class="summary-card">
+                    <div class="label">🏆 Best Overall</div>
+                    <div class="value">${(best.avg * 100).toFixed(1)}%</div>
+                    <div class="model">${best.ev.displayName}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">📊 Comparing</div>
+                    <div class="value">${selectedList.length}</div>
+                    <div class="model">evaluations</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">📏 Score Range</div>
+                    <div class="value">${diff}%</div>
+                    <div class="model">difference</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">❓ Questions</div>
+                    <div class="value">${loadedData[selectedList[0].id].eval.total_questions}</div>
+                    <div class="model">evaluated</div>
+                </div>
+            `;
+        }
+        
+        function renderRadarChart(selectedList) {
+            const ctx = document.getElementById('radar-chart').getContext('2d');
+            
+            const datasets = selectedList.map((ev, idx) => {
+                const data = loadedData[ev.id];
+                return {
+                    label: `${ev.displayName} (${ev.displayDate})`,
+                    data: METRICS.map(m => (data.eval.summary.avg_scores[m] * 100).toFixed(1)),
+                    backgroundColor: COLORS[idx % COLORS.length] + '30',
+                    borderColor: COLORS[idx % COLORS.length],
+                    borderWidth: 2,
+                    pointBackgroundColor: COLORS[idx % COLORS.length]
+                };
+            });
+            
+            charts.radar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: METRICS.map(m => METRIC_LABELS[m]),
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+        
+        function renderBarChart(selectedList) {
+            const ctx = document.getElementById('bar-chart').getContext('2d');
+            
+            const datasets = selectedList.map((ev, idx) => {
+                const data = loadedData[ev.id];
+                return {
+                    label: ev.displayName,
+                    data: METRICS.map(m => (data.eval.summary.avg_scores[m] * 100).toFixed(1)),
+                    backgroundColor: COLORS[idx % COLORS.length],
+                    borderRadius: 4
+                };
+            });
+            
+            charts.bar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: METRICS.map(m => METRIC_LABELS[m]),
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderDistributionChart(selectedList) {
+            const ctx = document.getElementById('distribution-chart').getContext('2d');
+            
+            const bins = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%'];
+            
+            const datasets = selectedList.map((ev, idx) => {
+                const data = loadedData[ev.id];
+                const counts = [0, 0, 0, 0, 0];
+                
+                data.eval.results.forEach(r => {
+                    const avgScore = METRICS.reduce((sum, m) => sum + (r.scores[m]?.score || 0), 0) / METRICS.length;
+                    const binIdx = Math.min(Math.floor(avgScore * 5), 4);
+                    counts[binIdx]++;
+                });
+                
+                return {
+                    label: ev.displayName,
+                    data: counts,
+                    backgroundColor: COLORS[idx % COLORS.length] + '80',
+                    borderColor: COLORS[idx % COLORS.length],
+                    borderWidth: 1
+                };
+            });
+            
+            charts.distribution = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: bins, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+        
+        function renderCategoryChart(selectedList) {
+            const ctx = document.getElementById('category-chart').getContext('2d');
+            
+            // Get all categories
+            const categories = new Set();
+            selectedList.forEach(ev => {
+                const data = loadedData[ev.id];
+                data.inference.results.forEach(r => {
+                    if (r.metadata?.category) categories.add(r.metadata.category);
+                });
+            });
+            
+            const categoryList = [...categories].sort();
+            
+            const datasets = selectedList.map((ev, idx) => {
+                const data = loadedData[ev.id];
+                const evalMap = new Map(data.eval.results.map(r => [r.question_id, r]));
+                
+                const categoryScores = {};
+                data.inference.results.forEach(r => {
+                    const cat = r.metadata?.category;
+                    if (!cat) return;
+                    
+                    const evalResult = evalMap.get(r.question_id);
+                    if (!evalResult) return;
+                    
+                    if (!categoryScores[cat]) categoryScores[cat] = [];
+                    const avgScore = METRICS.reduce((sum, m) => sum + (evalResult.scores[m]?.score || 0), 0) / METRICS.length;
+                    categoryScores[cat].push(avgScore);
+                });
+                
+                return {
+                    label: ev.displayName,
+                    data: categoryList.map(cat => {
+                        const scores = categoryScores[cat] || [];
+                        return scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length * 100).toFixed(1) : 0;
+                    }),
+                    backgroundColor: COLORS[idx % COLORS.length],
+                    borderRadius: 4
+                };
+            });
+            
+            charts.category = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: categoryList, datasets },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderMetricsTable(selectedList) {
+            const table = document.getElementById('metrics-table');
+            
+            const headers = ['Metric', ...selectedList.map((ev, idx) => 
+                `<span style="color: ${COLORS[idx % COLORS.length]}">${ev.displayName}</span>`
+            ), 'Δ Max'];
+            
+            const rows = METRICS.map(metric => {
+                const scores = selectedList.map(ev => {
+                    const data = loadedData[ev.id];
+                    return data.eval.summary.avg_scores[metric] * 100;
+                });
+                
+                const max = Math.max(...scores);
+                const min = Math.min(...scores);
+                const diff = max - min;
+                
+                const cells = scores.map((score, idx) => {
+                    const isMax = score === max && diff > 1;
+                    const isMin = score === min && diff > 1;
+                    return `<td><span class="score-cell ${isMax ? 'best' : ''} ${isMin ? 'worst' : ''}">${score.toFixed(1)}%</span></td>`;
+                });
+                
+                return `
+                    <tr>
+                        <td>${METRIC_LABELS[metric]}</td>
+                        ${cells.join('')}
+                        <td>${diff.toFixed(1)}%</td>
+                    </tr>
+                `;
+            });
+            
+            // Add overall row
+            const overallScores = selectedList.map(ev => {
+                const data = loadedData[ev.id];
+                return Object.values(data.eval.summary.avg_scores).reduce((a, b) => a + b, 0) / METRICS.length * 100;
+            });
+            
+            const overallMax = Math.max(...overallScores);
+            const overallMin = Math.min(...overallScores);
+            const overallDiff = overallMax - overallMin;
+            
+            const overallCells = overallScores.map((score, idx) => {
+                const isMax = score === overallMax && overallDiff > 1;
+                const isMin = score === overallMin && overallDiff > 1;
+                return `<td><span class="score-cell ${isMax ? 'best' : ''} ${isMin ? 'worst' : ''}">${score.toFixed(1)}%</span></td>`;
+            });
+            
+            rows.push(`
+                <tr style="font-weight: bold; background: var(--bg);">
+                    <td>OVERALL</td>
+                    ${overallCells.join('')}
+                    <td>${overallDiff.toFixed(1)}%</td>
+                </tr>
+            `);
+            
+            table.innerHTML = `
+                <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+                <tbody>${rows.join('')}</tbody>
+            `;
+        }
+        
+        function renderDiffTable(selectedList) {
+            const table = document.getElementById('diff-table');
+            
+            if (selectedList.length !== 2) {
+                table.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">Select exactly 2 evaluations to see question-level differences</td></tr>';
+                return;
+            }
+            
+            const [ev1, ev2] = selectedList;
+            const data1 = loadedData[ev1.id];
+            const data2 = loadedData[ev2.id];
+            
+            const evalMap1 = new Map(data1.eval.results.map(r => [r.question_id, r]));
+            const evalMap2 = new Map(data2.eval.results.map(r => [r.question_id, r]));
+            const infMap1 = new Map(data1.inference.results.map(r => [r.question_id, r]));
+            
+            const diffs = [];
+            
+            evalMap1.forEach((result1, qid) => {
+                const result2 = evalMap2.get(qid);
+                if (!result2) return;
+                
+                const avg1 = METRICS.reduce((sum, m) => sum + (result1.scores[m]?.score || 0), 0) / METRICS.length;
+                const avg2 = METRICS.reduce((sum, m) => sum + (result2.scores[m]?.score || 0), 0) / METRICS.length;
+                const diff = avg2 - avg1;
+                
+                const infResult = infMap1.get(qid);
+                
+                diffs.push({
+                    qid,
+                    question: result1.question,
+                    category: infResult?.metadata?.category || '-',
+                    score1: avg1,
+                    score2: avg2,
+                    diff,
+                    absDiff: Math.abs(diff)
+                });
+            });
+            
+            let filtered;
+            switch (currentDiffTab) {
+                case 'improved':
+                    filtered = diffs.filter(d => d.diff > 0.05).sort((a, b) => b.diff - a.diff);
+                    break;
+                case 'regressed':
+                    filtered = diffs.filter(d => d.diff < -0.05).sort((a, b) => a.diff - b.diff);
+                    break;
+                default:
+                    filtered = diffs.sort((a, b) => b.absDiff - a.absDiff);
+            }
+            
+            filtered = filtered.slice(0, 15);
+            
+            if (filtered.length === 0) {
+                table.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">No significant differences found</td></tr>';
+                return;
+            }
+            
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Category</th>
+                        <th style="color: ${COLORS[0]}">${ev1.displayName}</th>
+                        <th style="color: ${COLORS[1]}">${ev2.displayName}</th>
+                        <th>Δ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${filtered.map(d => `
+                        <tr>
+                            <td class="question-text" title="${escapeHtml(d.question)}">${d.qid}: ${escapeHtml(d.question.substring(0, 50))}...</td>
+                            <td>${d.category}</td>
+                            <td>${(d.score1 * 100).toFixed(0)}%</td>
+                            <td>${(d.score2 * 100).toFixed(0)}%</td>
+                            <td class="${d.diff > 0 ? 'diff-positive' : 'diff-negative'}">${d.diff > 0 ? '+' : ''}${(d.diff * 100).toFixed(1)}%</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+        }
+        
+        function showDiffTab(tab) {
+            currentDiffTab = tab;
+            document.querySelectorAll('#diff-tabs .tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`#diff-tabs .tab[onclick="showDiffTab('${tab}')"]`).classList.add('active');
+            
+            const selectedList = availableEvals.filter(ev => selectedEvals.has(ev.id));
+            renderDiffTable(selectedList);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function toggleTheme() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        }
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIB Agent Evaluation Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        h1 .emoji { font-size: 1.5rem; }
+        
+        .header-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        
+        .file-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .file-selector label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .file-selector select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 0.85rem;
+            min-width: 280px;
+            cursor: pointer;
+        }
+        
+        .file-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .file-info {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+            gap: 1rem;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        [data-theme="dark"] .error-box {
+            background: #450a0a;
+            border-color: #7f1d1d;
+            color: #fca5a5;
+        }
+        
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .summary-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        
+        .summary-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .summary-card .subtext {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .summary-card.highlight {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .summary-card.highlight .label,
+        .summary-card.highlight .value,
+        .summary-card.highlight .subtext {
+            color: white;
+        }
+        
+        /* Sections */
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .chart-container.tall {
+            height: 400px;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        select, input[type="text"] {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        
+        input[type="text"] {
+            min-width: 200px;
+        }
+        
+        /* Results Table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .results-table th,
+        .results-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .results-table th {
+            background: var(--bg);
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+        }
+        
+        .results-table th:hover {
+            color: var(--primary);
+        }
+        
+        .results-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .results-table tbody tr:hover {
+            background: var(--bg);
+        }
+        
+        .score-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .score-high { background: #dcfce7; color: #166534; }
+        .score-mid { background: #fef3c7; color: #92400e; }
+        .score-low { background: #fee2e2; color: #991b1b; }
+        
+        [data-theme="dark"] .score-high { background: #166534; color: #dcfce7; }
+        [data-theme="dark"] .score-mid { background: #92400e; color: #fef3c7; }
+        [data-theme="dark"] .score-low { background: #991b1b; color: #fee2e2; }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+        
+        /* Detail Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 1;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            line-height: 1;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-section h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .detail-content {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .response-text {
+            white-space: pre-wrap;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        
+        /* Markdown rendered content */
+        .markdown-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .markdown-content th,
+        .markdown-content td {
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+        
+        .markdown-content th {
+            background: var(--bg-card);
+            font-weight: 600;
+        }
+        
+        .markdown-content tr:nth-child(even) {
+            background: rgba(0,0,0,0.02);
+        }
+        
+        [data-theme="dark"] .markdown-content tr:nth-child(even) {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .markdown-content p {
+            margin: 0.75rem 0;
+        }
+        
+        .markdown-content ul, .markdown-content ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .markdown-content li {
+            margin: 0.25rem 0;
+        }
+        
+        .markdown-content code {
+            background: var(--bg-card);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+        
+        .markdown-content pre {
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+        }
+        
+        .markdown-content pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .markdown-content h1, .markdown-content h2, .markdown-content h3,
+        .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+            margin: 1rem 0 0.5rem;
+            font-weight: 600;
+        }
+        
+        .markdown-content blockquote {
+            border-left: 3px solid var(--primary);
+            padding-left: 1rem;
+            margin: 0.75rem 0;
+            color: var(--text-muted);
+        }
+        
+        .markdown-content a {
+            color: var(--primary);
+        }
+        
+        .markdown-content hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 1rem 0;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .score-item {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+        
+        .score-item .metric-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .score-item .reason {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        .trajectory-item {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: var(--bg);
+        }
+        
+        .trajectory-item.human {
+            border-left: 3px solid var(--primary);
+        }
+        
+        .trajectory-item.ai {
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .trajectory-item.tool {
+            border-left: 3px solid var(--accent);
+        }
+        
+        .trajectory-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .tool-call {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .tool-call code {
+            color: var(--primary);
+        }
+        
+        /* Heatmap */
+        .heatmap-container {
+            overflow-x: auto;
+        }
+        
+        .heatmap {
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            width: 100%;
+            min-width: 700px;
+        }
+        
+        .heatmap th, .heatmap td {
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        .heatmap th {
+            background: var(--bg);
+            font-weight: 600;
+        }
+        
+        .heatmap td.question-cell {
+            text-align: left;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .heatmap-cell {
+            width: 60px;
+            font-weight: 600;
+        }
+        
+        /* Insights */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .insight-card {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .insight-card h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .insight-list {
+            list-style: none;
+        }
+        
+        .insight-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        
+        .insight-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .insight-list .question-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .chart-container { height: 250px; }
+            h1 { font-size: 1.25rem; }
+        }
+        
+        /* Progress bar */
+        .progress-bar {
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        /* Utility */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="emoji">📊</span> FIB Agent Evaluation Dashboard</h1>
+            <div class="header-controls">
+                <div class="file-selector">
+                    <label for="eval-select">📁 Evaluation:</label>
+                    <select id="eval-select" onchange="loadSelectedFiles()">
+                        <option value="">Discovering files...</option>
+                    </select>
+                </div>
+                <a href="compare.html" class="theme-toggle" style="text-decoration: none;">⚖️ Compare</a>
+                <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+            </div>
+        </header>
+        
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading evaluation data...</p>
+        </div>
+        
+        <div id="error" class="error-box hidden"></div>
+        
+        <main id="dashboard" class="hidden">
+            <!-- Summary Cards -->
+            <div class="summary-grid" id="summary-cards"></div>
+            
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="section">
+                    <h2 class="section-title">📈 Overall Scores by Metric</h2>
+                    <div class="chart-container">
+                        <canvas id="metrics-chart"></canvas>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2 class="section-title">🎯 Scores by Category</h2>
+                    <div class="chart-container">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="section">
+                    <h2 class="section-title">📊 Score Distribution</h2>
+                    <div class="chart-container">
+                        <canvas id="distribution-chart"></canvas>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2 class="section-title">🔀 Scores by Complexity</h2>
+                    <div class="chart-container">
+                        <canvas id="complexity-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Insights Section -->
+            <div class="section">
+                <h2 class="section-title">💡 Insights</h2>
+                <div class="insights-grid" id="insights"></div>
+            </div>
+            
+            <!-- Heatmap Section -->
+            <div class="section">
+                <h2 class="section-title">🔥 Score Heatmap</h2>
+                <div class="tabs" id="heatmap-tabs"></div>
+                <div class="heatmap-container" id="heatmap-container"></div>
+            </div>
+            
+            <!-- Results Explorer -->
+            <div class="section">
+                <h2 class="section-title">🔍 Results Explorer</h2>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Category:</label>
+                        <select id="filter-category">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Complexity:</label>
+                        <select id="filter-complexity">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Search:</label>
+                        <input type="text" id="filter-search" placeholder="Search questions...">
+                    </div>
+                    <div class="filter-group">
+                        <label>Sort by:</label>
+                        <select id="sort-by">
+                            <option value="id">ID</option>
+                            <option value="avg_score">Avg Score</option>
+                            <option value="relevance">Relevance</option>
+                            <option value="helpfulness">Helpfulness</option>
+                            <option value="tool_appropriateness">Tool Appropriateness</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable('id')">ID</th>
+                                <th onclick="sortTable('question')">Question</th>
+                                <th onclick="sortTable('category')">Category</th>
+                                <th onclick="sortTable('complexity')">Complexity</th>
+                                <th onclick="sortTable('avg_score')">Avg</th>
+                                <th onclick="sortTable('relevance')">Rel</th>
+                                <th onclick="sortTable('helpfulness')">Help</th>
+                                <th onclick="sortTable('conciseness')">Conc</th>
+                                <th onclick="sortTable('structure')">Str</th>
+                                <th onclick="sortTable('tone')">Tone</th>
+                                <th onclick="sortTable('error_handling')">Err</th>
+                                <th onclick="sortTable('tool_appropriateness')">Tool</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Detail Modal -->
+    <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modal-title">Question Details</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+    
+    <script>
+        let evalData = null;
+        let inferenceData = null;
+        let mergedResults = [];
+        let currentSort = { field: 'id', asc: true };
+        let charts = {};
+        let availableFilePairs = [];
+        let currentBasePath = '';
+        
+        async function discoverAllFiles() {
+            const basePaths = ['results/', '', './results/', '../results/'];
+            const filePairs = [];
+            
+            for (const base of basePaths) {
+                try {
+                    const resp = await fetch(base);
+                    if (resp.ok) {
+                        const text = await resp.text();
+                        
+                        // Find all evaluation files
+                        const evalMatches = [...text.matchAll(/href="(evaluation_[^"]+\.json)"/g)];
+                        const inferenceMatches = [...text.matchAll(/href="(inference_[^"]+\.json)"/g)];
+                        
+                        if (evalMatches.length > 0) {
+                            currentBasePath = base;
+                            
+                            // Match evaluation files with their inference files
+                            for (const evalMatch of evalMatches) {
+                                const evalFile = evalMatch[1];
+                                // Extract the model and timestamp pattern from eval filename
+                                // Format: evaluation_{model}_{inference_ts}_{eval_ts}.json
+                                const evalParts = evalFile.match(/evaluation_(.+?)_(\d{8}_\d{6})_(\d{8}_\d{6})\.json/);
+                                
+                                if (evalParts) {
+                                    const model = evalParts[1];
+                                    const inferenceTs = evalParts[2];
+                                    const evalTs = evalParts[3];
+                                    
+                                    // Find matching inference file
+                                    const expectedInference = `inference_${model}_${inferenceTs}.json`;
+                                    const inferenceFile = inferenceMatches.find(m => m[1] === expectedInference);
+                                    
+                                    if (inferenceFile) {
+                                        // Create a nice display name
+                                        const displayName = `${model} (${formatTimestamp(inferenceTs)})`;
+                                        
+                                        filePairs.push({
+                                            eval: base + evalFile,
+                                            inference: base + inferenceFile[1],
+                                            displayName,
+                                            model,
+                                            inferenceTs,
+                                            evalTs
+                                        });
+                                    }
+                                }
+                            }
+                            
+                            if (filePairs.length > 0) break;
+                        }
+                    }
+                } catch (e) { /* continue trying */ }
+            }
+            
+            // Sort by timestamp (newest first)
+            filePairs.sort((a, b) => b.inferenceTs.localeCompare(a.inferenceTs));
+            
+            return filePairs;
+        }
+        
+        function formatTimestamp(ts) {
+            // Convert 20251214_172328 to "Dec 14, 17:23"
+            const match = ts.match(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
+            if (!match) return ts;
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const [, year, month, day, hour, min] = match;
+            return `${months[parseInt(month) - 1]} ${parseInt(day)}, ${hour}:${min}`;
+        }
+        
+        function populateFileSelector(filePairs, selectedIndex = 0) {
+            const select = document.getElementById('eval-select');
+            
+            if (filePairs.length === 0) {
+                select.innerHTML = '<option value="">No evaluation files found</option>';
+                return;
+            }
+            
+            select.innerHTML = filePairs.map((pair, idx) => 
+                `<option value="${idx}" ${idx === selectedIndex ? 'selected' : ''}>${pair.displayName}</option>`
+            ).join('');
+        }
+        
+        async function loadSelectedFiles() {
+            const select = document.getElementById('eval-select');
+            const idx = parseInt(select.value);
+            
+            if (isNaN(idx) || !availableFilePairs[idx]) return;
+            
+            const pair = availableFilePairs[idx];
+            
+            // Update URL without reload
+            const url = new URL(window.location);
+            url.searchParams.set('eval', pair.eval);
+            url.searchParams.set('inference', pair.inference);
+            window.history.replaceState({}, '', url);
+            
+            // Show loading
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('error').classList.add('hidden');
+            
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => chart.destroy());
+            charts = {};
+            
+            await loadData(pair.eval, pair.inference);
+        }
+        
+        async function discoverFiles() {
+            // Legacy function for backwards compatibility
+            const pairs = await discoverAllFiles();
+            if (pairs.length > 0) {
+                return { eval: pairs[0].eval, inference: pairs[0].inference };
+            }
+            return { eval: null, inference: null };
+        }
+        
+        const METRICS = ['relevance', 'helpfulness', 'conciseness', 'structure', 'tone', 'error_handling', 'tool_appropriateness'];
+        const METRIC_LABELS = {
+            relevance: 'Relevance',
+            helpfulness: 'Helpfulness',
+            conciseness: 'Conciseness',
+            structure: 'Structure',
+            tone: 'Tone',
+            error_handling: 'Error Handling',
+            tool_appropriateness: 'Tool Appropriateness'
+        };
+        
+        const COLORS = {
+            primary: '#3b82f6',
+            secondary: '#10b981',
+            accent: '#f59e0b',
+            danger: '#ef4444',
+            purple: '#8b5cf6',
+            pink: '#ec4899',
+            cyan: '#06b6d4',
+            metrics: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+        };
+        
+        async function init() {
+            try {
+                // Discover all available file pairs
+                availableFilePairs = await discoverAllFiles();
+                
+                const params = new URLSearchParams(window.location.search);
+                let evalFile = params.get('eval');
+                let inferenceFile = params.get('inference');
+                
+                // Find which pair matches URL params, or use first available
+                let selectedIndex = 0;
+                if (evalFile && inferenceFile) {
+                    const matchIdx = availableFilePairs.findIndex(p => 
+                        p.eval === evalFile && p.inference === inferenceFile
+                    );
+                    if (matchIdx >= 0) selectedIndex = matchIdx;
+                }
+                
+                // Populate the dropdown
+                populateFileSelector(availableFilePairs, selectedIndex);
+                
+                if (availableFilePairs.length === 0) {
+                    throw new Error('No evaluation files found in results/ directory.');
+                }
+                
+                // Use selected pair or URL params
+                const selectedPair = availableFilePairs[selectedIndex];
+                evalFile = evalFile || selectedPair.eval;
+                inferenceFile = inferenceFile || selectedPair.inference;
+                
+                await loadData(evalFile, inferenceFile);
+                
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('error').innerHTML = `
+                    <h3>⚠️ Error Loading Data</h3>
+                    <p style="white-space: pre-wrap;">${error.message}</p>
+                    <p class="mt-2"><strong>Usage:</strong></p>
+                    <p><code>visualize.html?eval=PATH&inference=PATH</code></p>
+                    <p class="mt-2"><strong>Examples:</strong></p>
+                    <ul style="text-align: left; display: inline-block; margin-top: 0.5rem;">
+                        <li>From <code>evaluation/</code>: <code>?eval=results/evaluation_xxx.json&inference=results/inference_xxx.json</code></li>
+                        <li>From <code>results/</code>: <code>?eval=evaluation_xxx.json&inference=inference_xxx.json</code></li>
+                    </ul>
+                `;
+            }
+        }
+        
+        async function loadData(evalFile, inferenceFile) {
+            try {
+                const [evalResp, inferenceResp] = await Promise.all([
+                    fetch(evalFile),
+                    fetch(inferenceFile)
+                ]);
+                
+                if (!evalResp.ok || !inferenceResp.ok) {
+                    throw new Error(`Failed to load data files. Tried:\n- ${evalFile}\n- ${inferenceFile}\n\nMake sure paths are correct.`);
+                }
+                
+                evalData = await evalResp.json();
+                inferenceData = await inferenceResp.json();
+                
+                mergeData();
+                renderDashboard();
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('error').innerHTML = `
+                    <h3>⚠️ Error Loading Data</h3>
+                    <p style="white-space: pre-wrap;">${error.message}</p>
+                `;
+            }
+        }
+        
+        function mergeData() {
+            const inferenceMap = new Map(inferenceData.results.map(r => [r.question_id, r]));
+            
+            mergedResults = evalData.results.map(evalResult => {
+                const inferenceResult = inferenceMap.get(evalResult.question_id) || {};
+                const scores = evalResult.scores || {};
+                
+                const avgScore = METRICS.reduce((sum, m) => sum + (scores[m]?.score || 0), 0) / METRICS.length;
+                
+                return {
+                    ...evalResult,
+                    trajectory: inferenceResult.trajectory || [],
+                    metadata: inferenceResult.metadata || {},
+                    error: inferenceResult.error,
+                    avgScore
+                };
+            });
+        }
+        
+        function renderDashboard() {
+            renderSummaryCards();
+            renderMetricsChart();
+            renderCategoryChart();
+            renderDistributionChart();
+            renderComplexityChart();
+            renderInsights();
+            renderHeatmap();
+            populateFilters();
+            renderResultsTable();
+        }
+        
+        function renderSummaryCards() {
+            const container = document.getElementById('summary-cards');
+            const avgScores = evalData.summary.avg_scores;
+            const overallAvg = Object.values(avgScores).reduce((a, b) => a + b, 0) / Object.values(avgScores).length;
+            
+            const grade = overallAvg >= 0.9 ? 'A' : overallAvg >= 0.8 ? 'B' : overallAvg >= 0.7 ? 'C' : overallAvg >= 0.6 ? 'D' : 'F';
+            
+            container.innerHTML = `
+                <div class="summary-card highlight">
+                    <div class="label">Overall Score</div>
+                    <div class="value">${(overallAvg * 100).toFixed(1)}%</div>
+                    <div class="subtext">Grade: ${grade}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Total Questions</div>
+                    <div class="value">${evalData.total_questions}</div>
+                    <div class="subtext">${evalData.completed} evaluated</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Model</div>
+                    <div class="value" style="font-size: 1.1rem;">${inferenceData.model.name}</div>
+                    <div class="subtext">${inferenceData.model.type}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Best Metric</div>
+                    <div class="value">${(Math.max(...Object.values(avgScores)) * 100).toFixed(0)}%</div>
+                    <div class="subtext">${METRIC_LABELS[Object.entries(avgScores).sort((a, b) => b[1] - a[1])[0][0]]}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Needs Improvement</div>
+                    <div class="value">${(Math.min(...Object.values(avgScores)) * 100).toFixed(0)}%</div>
+                    <div class="subtext">${METRIC_LABELS[Object.entries(avgScores).sort((a, b) => a[1] - b[1])[0][0]]}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Eval Timestamp</div>
+                    <div class="value" style="font-size: 1rem;">${new Date(evalData.eval_timestamp).toLocaleDateString()}</div>
+                    <div class="subtext">${new Date(evalData.eval_timestamp).toLocaleTimeString()}</div>
+                </div>
+            `;
+        }
+        
+        function renderMetricsChart() {
+            const ctx = document.getElementById('metrics-chart').getContext('2d');
+            const avgScores = evalData.summary.avg_scores;
+            
+            charts.metrics = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: METRICS.map(m => METRIC_LABELS[m]),
+                    datasets: [{
+                        label: 'Average Score',
+                        data: METRICS.map(m => (avgScores[m] * 100).toFixed(1)),
+                        backgroundColor: COLORS.metrics,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderCategoryChart() {
+            const ctx = document.getElementById('category-chart').getContext('2d');
+            const categoryScores = {};
+            
+            mergedResults.forEach(r => {
+                const cat = r.metadata.category || 'unknown';
+                if (!categoryScores[cat]) categoryScores[cat] = [];
+                categoryScores[cat].push(r.avgScore);
+            });
+            
+            const categories = Object.keys(categoryScores).sort();
+            const avgByCategory = categories.map(c => 
+                (categoryScores[c].reduce((a, b) => a + b, 0) / categoryScores[c].length * 100).toFixed(1)
+            );
+            
+            charts.category = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Average Score',
+                        data: avgByCategory,
+                        backgroundColor: COLORS.primary,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderDistributionChart() {
+            const ctx = document.getElementById('distribution-chart').getContext('2d');
+            
+            const bins = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
+            const binLabels = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%'];
+            
+            const datasets = METRICS.map((metric, i) => {
+                const counts = [0, 0, 0, 0, 0];
+                mergedResults.forEach(r => {
+                    const score = r.scores[metric]?.score || 0;
+                    const binIdx = Math.min(Math.floor(score * 5), 4);
+                    counts[binIdx]++;
+                });
+                return {
+                    label: METRIC_LABELS[metric],
+                    data: counts,
+                    backgroundColor: COLORS.metrics[i] + '80',
+                    borderColor: COLORS.metrics[i],
+                    borderWidth: 1
+                };
+            });
+            
+            charts.distribution = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: binLabels,
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12 }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function renderComplexityChart() {
+            const ctx = document.getElementById('complexity-chart').getContext('2d');
+            const complexityScores = {};
+            
+            mergedResults.forEach(r => {
+                const comp = r.metadata.complexity || 'unknown';
+                if (!complexityScores[comp]) complexityScores[comp] = {};
+                METRICS.forEach(m => {
+                    if (!complexityScores[comp][m]) complexityScores[comp][m] = [];
+                    complexityScores[comp][m].push(r.scores[m]?.score || 0);
+                });
+            });
+            
+            const complexities = Object.keys(complexityScores).sort();
+            
+            const datasets = METRICS.map((metric, i) => ({
+                label: METRIC_LABELS[metric],
+                data: complexities.map(c => {
+                    const scores = complexityScores[c][metric] || [];
+                    return scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length * 100).toFixed(1) : 0;
+                }),
+                backgroundColor: COLORS.metrics[i],
+                borderRadius: 4
+            }));
+            
+            charts.complexity = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: complexities,
+                    datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: v => v + '%' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderInsights() {
+            const container = document.getElementById('insights');
+            
+            const sortedByAvg = [...mergedResults].sort((a, b) => a.avgScore - b.avgScore);
+            const worst5 = sortedByAvg.slice(0, 5);
+            const best5 = sortedByAvg.slice(-5).reverse();
+            
+            const metricSorted = Object.entries(evalData.summary.avg_scores).sort((a, b) => a[1] - b[1]);
+            
+            container.innerHTML = `
+                <div class="insight-card">
+                    <h4>⚠️ Lowest Scoring Questions</h4>
+                    <ul class="insight-list">
+                        ${worst5.map(r => `
+                            <li onclick="showDetail('${r.question_id}')" style="cursor: pointer;">
+                                <span class="question-text">${r.question}</span>
+                                <span class="score-badge ${getScoreClass(r.avgScore)}">${(r.avgScore * 100).toFixed(0)}%</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                <div class="insight-card">
+                    <h4>⭐ Highest Scoring Questions</h4>
+                    <ul class="insight-list">
+                        ${best5.map(r => `
+                            <li onclick="showDetail('${r.question_id}')" style="cursor: pointer;">
+                                <span class="question-text">${r.question}</span>
+                                <span class="score-badge ${getScoreClass(r.avgScore)}">${(r.avgScore * 100).toFixed(0)}%</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                <div class="insight-card">
+                    <h4>📊 Metrics Ranking</h4>
+                    <ul class="insight-list">
+                        ${metricSorted.map(([m, score]) => `
+                            <li>
+                                <span>${METRIC_LABELS[m]}</span>
+                                <span class="score-badge ${getScoreClass(score)}">${(score * 100).toFixed(0)}%</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function renderHeatmap(category = null) {
+            const container = document.getElementById('heatmap-container');
+            const tabsContainer = document.getElementById('heatmap-tabs');
+            
+            const categories = [...new Set(mergedResults.map(r => r.metadata.category))].sort();
+            
+            tabsContainer.innerHTML = `
+                <button class="tab ${!category ? 'active' : ''}" onclick="renderHeatmap(null)">All</button>
+                ${categories.map(c => `
+                    <button class="tab ${category === c ? 'active' : ''}" onclick="renderHeatmap('${c}')">${c}</button>
+                `).join('')}
+            `;
+            
+            const filtered = category 
+                ? mergedResults.filter(r => r.metadata.category === category)
+                : mergedResults.slice(0, 20);
+            
+            container.innerHTML = `
+                <table class="heatmap">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            ${METRICS.map(m => `<th>${METRIC_LABELS[m].substring(0, 4)}</th>`).join('')}
+                            <th>Avg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(r => `
+                            <tr onclick="showDetail('${r.question_id}')" style="cursor: pointer;">
+                                <td class="question-cell" title="${escapeHtml(r.question)}">${r.question_id}: ${escapeHtml(r.question.substring(0, 40))}...</td>
+                                ${METRICS.map(m => {
+                                    const score = r.scores[m]?.score || 0;
+                                    return `<td class="heatmap-cell" style="background: ${getHeatmapColor(score)}">${(score * 100).toFixed(0)}</td>`;
+                                }).join('')}
+                                <td class="heatmap-cell" style="background: ${getHeatmapColor(r.avgScore)}; font-weight: bold;">${(r.avgScore * 100).toFixed(0)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function getHeatmapColor(score) {
+            if (score >= 0.8) return 'rgba(16, 185, 129, 0.4)';
+            if (score >= 0.6) return 'rgba(245, 158, 11, 0.4)';
+            return 'rgba(239, 68, 68, 0.4)';
+        }
+        
+        function populateFilters() {
+            const categories = [...new Set(mergedResults.map(r => r.metadata.category))].sort();
+            const complexities = [...new Set(mergedResults.map(r => r.metadata.complexity))].sort();
+            
+            const catSelect = document.getElementById('filter-category');
+            categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                catSelect.appendChild(opt);
+            });
+            
+            const compSelect = document.getElementById('filter-complexity');
+            complexities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                compSelect.appendChild(opt);
+            });
+            
+            document.getElementById('filter-category').addEventListener('change', renderResultsTable);
+            document.getElementById('filter-complexity').addEventListener('change', renderResultsTable);
+            document.getElementById('filter-search').addEventListener('input', renderResultsTable);
+            document.getElementById('sort-by').addEventListener('change', e => {
+                currentSort.field = e.target.value;
+                renderResultsTable();
+            });
+        }
+        
+        function renderResultsTable() {
+            const tbody = document.getElementById('results-tbody');
+            const category = document.getElementById('filter-category').value;
+            const complexity = document.getElementById('filter-complexity').value;
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            
+            let filtered = mergedResults.filter(r => {
+                if (category && r.metadata.category !== category) return false;
+                if (complexity && r.metadata.complexity !== complexity) return false;
+                if (search && !r.question.toLowerCase().includes(search)) return false;
+                return true;
+            });
+            
+            filtered.sort((a, b) => {
+                let aVal, bVal;
+                switch (currentSort.field) {
+                    case 'id': aVal = a.question_id; bVal = b.question_id; break;
+                    case 'question': aVal = a.question; bVal = b.question; break;
+                    case 'category': aVal = a.metadata.category; bVal = b.metadata.category; break;
+                    case 'complexity': aVal = a.metadata.complexity; bVal = b.metadata.complexity; break;
+                    case 'avg_score': aVal = a.avgScore; bVal = b.avgScore; break;
+                    default: aVal = a.scores[currentSort.field]?.score || 0; bVal = b.scores[currentSort.field]?.score || 0;
+                }
+                if (typeof aVal === 'string') return currentSort.asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                return currentSort.asc ? aVal - bVal : bVal - aVal;
+            });
+            
+            tbody.innerHTML = filtered.map(r => `
+                <tr onclick="showDetail('${r.question_id}')">
+                    <td>${r.question_id}</td>
+                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(r.question)}">${escapeHtml(r.question)}</td>
+                    <td><span class="category-badge">${r.metadata.category || '-'}</span></td>
+                    <td><span class="category-badge">${r.metadata.complexity || '-'}</span></td>
+                    <td><span class="score-badge ${getScoreClass(r.avgScore)}">${(r.avgScore * 100).toFixed(0)}%</span></td>
+                    ${METRICS.map(m => {
+                        const score = r.scores[m]?.score || 0;
+                        return `<td><span class="score-badge ${getScoreClass(score)}">${(score * 100).toFixed(0)}</span></td>`;
+                    }).join('')}
+                </tr>
+            `).join('');
+        }
+        
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.asc = !currentSort.asc;
+            } else {
+                currentSort.field = field;
+                currentSort.asc = true;
+            }
+            renderResultsTable();
+        }
+        
+        function showDetail(questionId) {
+            const result = mergedResults.find(r => r.question_id === questionId);
+            if (!result) return;
+            
+            const modal = document.getElementById('modal-overlay');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+            
+            title.textContent = `${result.question_id}: ${result.question.substring(0, 60)}${result.question.length > 60 ? '...' : ''}`;
+            
+            const responseText = typeof result.final_response === 'string' 
+                ? result.final_response 
+                : JSON.stringify(result.final_response, null, 2);
+            
+            body.innerHTML = `
+                <div class="detail-section">
+                    <h3>Question</h3>
+                    <div class="detail-content">${escapeHtml(result.question)}</div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Metadata</h3>
+                    <div class="detail-content">
+                        <strong>Category:</strong> ${result.metadata.category || '-'} &nbsp;|&nbsp;
+                        <strong>Complexity:</strong> ${result.metadata.complexity || '-'} &nbsp;|&nbsp;
+                        <strong>Expected Tools:</strong> ${(result.metadata.expected_tools || []).join(', ') || '-'} &nbsp;|&nbsp;
+                        <strong>Requires Auth:</strong> ${result.metadata.requires_auth ? 'Yes' : 'No'}
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Final Response</h3>
+                    <div class="detail-content markdown-content">${renderMarkdown(responseText)}</div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Scores (Avg: ${(result.avgScore * 100).toFixed(1)}%)</h3>
+                    <div class="score-grid">
+                        ${METRICS.map(m => {
+                            const scoreData = result.scores[m] || {};
+                            return `
+                                <div class="score-item">
+                                    <div class="metric-name">
+                                        <span>${METRIC_LABELS[m]}</span>
+                                        <span class="score-badge ${getScoreClass(scoreData.score || 0)}">${((scoreData.score || 0) * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="fill" style="width: ${(scoreData.score || 0) * 100}%; background: ${getScoreColor(scoreData.score || 0)};"></div>
+                                    </div>
+                                    <div class="reason">${escapeHtml(scoreData.reason || 'No reason provided')}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Trajectory (${result.trajectory.length} steps)</h3>
+                    <div class="detail-content">
+                        ${result.trajectory.map(step => {
+                            const content = typeof step.content === 'string' 
+                                ? step.content 
+                                : JSON.stringify(step.content, null, 2);
+                            return `
+                                <div class="trajectory-item ${step.type}">
+                                    <div class="trajectory-label">${step.type}${step.name ? ` (${step.name})` : ''}</div>
+                                    <div>${escapeHtml(content || '(empty)')}</div>
+                                    ${step.tool_calls ? step.tool_calls.map(tc => `
+                                        <div class="tool-call">
+                                            <strong>Tool:</strong> <code>${tc.name}</code><br>
+                                            <strong>Args:</strong> ${escapeHtml(JSON.stringify(tc.args))}
+                                        </div>
+                                    `).join('') : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeModal(event) {
+            if (!event || event.target === document.getElementById('modal-overlay')) {
+                document.getElementById('modal-overlay').classList.add('hidden');
+            }
+        }
+        
+        function getScoreClass(score) {
+            if (score >= 0.7) return 'score-high';
+            if (score >= 0.4) return 'score-mid';
+            return 'score-low';
+        }
+        
+        function getScoreColor(score) {
+            if (score >= 0.7) return '#10b981';
+            if (score >= 0.4) return '#f59e0b';
+            return '#ef4444';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function renderMarkdown(text) {
+            if (!text) return '';
+            try {
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true
+                });
+                return marked.parse(text);
+            } catch (e) {
+                return escapeHtml(text);
+            }
+        }
+        
+        function toggleTheme() {
+            const body = document.body;
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            
+            Object.values(charts).forEach(chart => {
+                chart.options.scales.x && (chart.options.scales.x.grid = { color: isDark ? '#e2e8f0' : '#334155' });
+                chart.options.scales.y && (chart.options.scales.y.grid = { color: isDark ? '#e2e8f0' : '#334155' });
+                chart.update();
+            });
+        }
+        
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+[
+  {
+    "id": "q_001",
+    "question": "How many credits is the IA course?",
+    "category": "courses",
+    "complexity": "simple",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Single tool, direct factual question"
+  },
+  {
+    "id": "q_002",
+    "question": "What is the full name of the EDA course?",
+    "category": "courses",
+    "complexity": "simple",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Course lookup by code"
+  },
+  {
+    "id": "q_003",
+    "question": "Which semesters can I take the Operating Systems course?",
+    "category": "courses",
+    "complexity": "simple",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Requires matching course name to code"
+  },
+  {
+    "id": "q_004",
+    "question": "What AI-related courses are available in the bachelor's degree?",
+    "category": "courses",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Requires filtering by topic and study plan"
+  },
+  {
+    "id": "q_005",
+    "question": "Tell me about the Machine Learning course at FIB",
+    "category": "courses",
+    "complexity": "simple",
+    "expected_tools": ["search_courses", "get_course_details"],
+    "requires_auth": false,
+    "notes": "Open-ended course information request"
+  },
+  {
+    "id": "q_006",
+    "question": "Is PROP a mandatory or optional course?",
+    "category": "courses",
+    "complexity": "simple",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Specific attribute lookup"
+  },
+  {
+    "id": "q_007",
+    "question": "What networking courses are available?",
+    "category": "courses",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Topic-based course search"
+  },
+  {
+    "id": "q_008",
+    "question": "Which courses from the MAI master's program are available in Q1?",
+    "category": "courses",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Filtering by program and semester"
+  },
+  {
+    "id": "q_009",
+    "question": "Where can I find the syllabus for the Databases course?",
+    "category": "courses",
+    "complexity": "simple",
+    "expected_tools": ["search_courses", "get_course_details"],
+    "requires_auth": false,
+    "notes": "Should return syllabus URL"
+  },
+  {
+    "id": "q_010",
+    "question": "Compare PRO1 and PRO2 courses",
+    "category": "courses",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses", "get_course_details"],
+    "requires_auth": false,
+    "notes": "Comparison requiring multiple lookups"
+  },
+  {
+    "id": "q_011",
+    "question": "When is the final exam for BD?",
+    "category": "exams",
+    "complexity": "simple",
+    "expected_tools": ["search_exams"],
+    "requires_auth": false,
+    "notes": "Specific exam lookup"
+  },
+  {
+    "id": "q_012",
+    "question": "What exams are scheduled for next week?",
+    "category": "exams",
+    "complexity": "simple",
+    "expected_tools": ["get_upcoming_exams"],
+    "requires_auth": false,
+    "notes": "Time-relative exam query"
+  },
+  {
+    "id": "q_013",
+    "question": "Where is the IA exam held?",
+    "category": "exams",
+    "complexity": "simple",
+    "expected_tools": ["search_exams"],
+    "requires_auth": false,
+    "notes": "Room location query"
+  },
+  {
+    "id": "q_014",
+    "question": "Are there any exam conflicts between EDA and BD?",
+    "category": "exams",
+    "complexity": "multi_step",
+    "expected_tools": ["search_exams"],
+    "requires_auth": false,
+    "notes": "Requires checking multiple exams for overlap"
+  },
+  {
+    "id": "q_015",
+    "question": "List all partial exams for this semester",
+    "category": "exams",
+    "complexity": "multi_step",
+    "expected_tools": ["search_exams", "get_current_term"],
+    "requires_auth": false,
+    "notes": "Filtering by exam type and current term"
+  },
+  {
+    "id": "q_016",
+    "question": "Who teaches the Artificial Intelligence course?",
+    "category": "professors",
+    "complexity": "simple",
+    "expected_tools": ["search_professors"],
+    "requires_auth": false,
+    "notes": "Professor-course association"
+  },
+  {
+    "id": "q_017",
+    "question": "What is Professor Jordi Petit's email?",
+    "category": "professors",
+    "complexity": "simple",
+    "expected_tools": ["search_professors"],
+    "requires_auth": false,
+    "notes": "Contact information lookup"
+  },
+  {
+    "id": "q_018",
+    "question": "Which professors are in the Computer Science department?",
+    "category": "professors",
+    "complexity": "multi_step",
+    "expected_tools": ["search_professors"],
+    "requires_auth": false,
+    "notes": "Department-based filtering"
+  },
+  {
+    "id": "q_019",
+    "question": "Find professors who teach database-related courses",
+    "category": "professors",
+    "complexity": "multi_step",
+    "expected_tools": ["search_professors", "search_courses"],
+    "requires_auth": false,
+    "notes": "Cross-referencing courses and professors"
+  },
+  {
+    "id": "q_020",
+    "question": "What's new at FIB?",
+    "category": "news",
+    "complexity": "simple",
+    "expected_tools": ["get_fib_news"],
+    "requires_auth": false,
+    "notes": "General news query"
+  },
+  {
+    "id": "q_021",
+    "question": "Are there any upcoming hackathons or events?",
+    "category": "news",
+    "complexity": "simple",
+    "expected_tools": ["get_fib_news"],
+    "requires_auth": false,
+    "notes": "Event-focused news query"
+  },
+  {
+    "id": "q_022",
+    "question": "What international study opportunities are available?",
+    "category": "news",
+    "complexity": "simple",
+    "expected_tools": ["get_fib_news"],
+    "requires_auth": false,
+    "notes": "Topic-specific news search"
+  },
+  {
+    "id": "q_023",
+    "question": "What is the current semester?",
+    "category": "academic",
+    "complexity": "simple",
+    "expected_tools": ["get_current_term"],
+    "requires_auth": false,
+    "notes": "Direct academic info query"
+  },
+  {
+    "id": "q_024",
+    "question": "When does the next semester start?",
+    "category": "academic",
+    "complexity": "simple",
+    "expected_tools": ["get_academic_terms"],
+    "requires_auth": false,
+    "notes": "Future term information"
+  },
+  {
+    "id": "q_025",
+    "question": "How many classrooms does FIB have?",
+    "category": "classrooms",
+    "complexity": "simple",
+    "expected_tools": ["list_classrooms"],
+    "requires_auth": false,
+    "notes": "Aggregate classroom count"
+  },
+  {
+    "id": "q_026",
+    "question": "What classrooms are in building A5?",
+    "category": "classrooms",
+    "complexity": "simple",
+    "expected_tools": ["list_classrooms"],
+    "requires_auth": false,
+    "notes": "Building-specific room query"
+  },
+  {
+    "id": "q_027",
+    "question": "When is my next exam?",
+    "category": "personal",
+    "complexity": "contextual",
+    "expected_tools": ["get_my_courses", "search_exams"],
+    "requires_auth": true,
+    "notes": "Requires user context to determine enrolled courses"
+  },
+  {
+    "id": "q_028",
+    "question": "What courses am I enrolled in?",
+    "category": "personal",
+    "complexity": "simple",
+    "expected_tools": ["get_my_courses"],
+    "requires_auth": true,
+    "notes": "Direct personal data query"
+  },
+  {
+    "id": "q_029",
+    "question": "What do I have tomorrow?",
+    "category": "personal",
+    "complexity": "contextual",
+    "expected_tools": ["get_my_schedule"],
+    "requires_auth": true,
+    "notes": "Schedule query requiring date context"
+  },
+  {
+    "id": "q_030",
+    "question": "Are there any announcements for my courses?",
+    "category": "personal",
+    "complexity": "contextual",
+    "expected_tools": ["get_my_notices"],
+    "requires_auth": true,
+    "notes": "Personal notices query"
+  },
+  {
+    "id": "q_031",
+    "question": "Tell me everything about the EDA course",
+    "category": "multi_tool",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses", "get_course_details", "search_professors", "search_exams"],
+    "requires_auth": false,
+    "notes": "Comprehensive course overview requiring multiple tools"
+  },
+  {
+    "id": "q_032",
+    "question": "I want to take an AI course, who teaches it and when is the exam?",
+    "category": "multi_tool",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses", "search_professors", "search_exams"],
+    "requires_auth": false,
+    "notes": "Multi-aspect query combining course, professor, and exam info"
+  },
+  {
+    "id": "q_033",
+    "question": "Plan my exam week: I'm taking IA, EDA, and BD",
+    "category": "multi_tool",
+    "complexity": "multi_step",
+    "expected_tools": ["search_exams"],
+    "requires_auth": false,
+    "notes": "Multi-course exam scheduling"
+  },
+  {
+    "id": "q_034",
+    "question": "Which professors teach courses I'm enrolled in?",
+    "category": "multi_tool",
+    "complexity": "contextual",
+    "expected_tools": ["get_my_courses", "search_professors"],
+    "requires_auth": true,
+    "notes": "Personal context combined with public data"
+  },
+  {
+    "id": "q_035",
+    "question": "What are my options for elective courses next semester?",
+    "category": "multi_tool",
+    "complexity": "contextual",
+    "expected_tools": ["get_my_profile", "search_courses", "get_current_term"],
+    "requires_auth": true,
+    "notes": "Requires knowing user's program and filtering courses"
+  },
+  {
+    "id": "q_036",
+    "question": "Help me",
+    "category": "ambiguous",
+    "complexity": "ambiguous",
+    "expected_tools": [],
+    "requires_auth": false,
+    "notes": "Vague query requiring clarification"
+  },
+  {
+    "id": "q_037",
+    "question": "The course",
+    "category": "ambiguous",
+    "complexity": "ambiguous",
+    "expected_tools": [],
+    "requires_auth": false,
+    "notes": "Incomplete query"
+  },
+  {
+    "id": "q_038",
+    "question": "Is it hard?",
+    "category": "ambiguous",
+    "complexity": "ambiguous",
+    "expected_tools": [],
+    "requires_auth": false,
+    "notes": "Missing context about what 'it' refers to"
+  },
+  {
+    "id": "q_039",
+    "question": "What should I do?",
+    "category": "ambiguous",
+    "complexity": "ambiguous",
+    "expected_tools": [],
+    "requires_auth": false,
+    "notes": "Open-ended question lacking specificity"
+  },
+  {
+    "id": "q_040",
+    "question": "What are the job prospects for computer science graduates in Barcelona?",
+    "category": "web_search",
+    "complexity": "simple",
+    "expected_tools": ["internet_search"],
+    "requires_auth": false,
+    "notes": "External information not in FIB API"
+  },
+  {
+    "id": "q_041",
+    "question": "How does FIB compare to other CS schools in Europe?",
+    "category": "web_search",
+    "complexity": "multi_step",
+    "expected_tools": ["internet_search"],
+    "requires_auth": false,
+    "notes": "Comparative query requiring external data"
+  },
+  {
+    "id": "q_042",
+    "question": "What programming languages should I learn for AI?",
+    "category": "web_search",
+    "complexity": "simple",
+    "expected_tools": ["internet_search"],
+    "requires_auth": false,
+    "notes": "General CS advice question"
+  },
+  {
+    "id": "q_043",
+    "question": "Is APC hard?",
+    "category": "courses",
+    "complexity": "contextual",
+    "expected_tools": ["search_courses", "get_course_details"],
+    "requires_auth": false,
+    "notes": "Subjective question about course difficulty"
+  },
+  {
+    "id": "q_044",
+    "question": "What's the difference between GRAU and GCED programs?",
+    "category": "courses",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Program comparison"
+  },
+  {
+    "id": "q_045",
+    "question": "Can you recommend courses for someone interested in cybersecurity?",
+    "category": "courses",
+    "complexity": "multi_step",
+    "expected_tools": ["search_courses"],
+    "requires_auth": false,
+    "notes": "Advisory query requiring topic filtering"
+  }
+]
