@@ -1,0 +1,31 @@
+from src.models.fib_types import (
+    AcademicTerm,
+    Attachment,
+    Classroom,
+    Course,
+    CourseObligatorietat,
+    Exam,
+    NewsItem,
+    PaginatedResponse,
+    Professor,
+    UserClass,
+    UserCourse,
+    UserNotice,
+    UserProfile,
+)
+
+__all__ = [
+    "AcademicTerm",
+    "Attachment",
+    "Classroom",
+    "Course",
+    "CourseObligatorietat",
+    "Exam",
+    "NewsItem",
+    "PaginatedResponse",
+    "Professor",
+    "UserClass",
+    "UserCourse",
+    "UserNotice",
+    "UserProfile",
+]
