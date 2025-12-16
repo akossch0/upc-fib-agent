@@ -1,0 +1,38 @@
+[
+  {
+    "id": "s02_problem",
+    "prompt": "Isometric 3D miniature scene of a tiny student figure at a desk surrounded by multiple disconnected floating platforms, each platform showing a different interface screen calendar and grade sheet, platforms scattered chaotically with no bridges between them, frustrated student trying to reach different platforms, soft shadows, pastel blue and grey color palette, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s03_solution",
+    "prompt": "Isometric 3D miniature scene of a tiny happy student figure at a desk with a single laptop, a friendly glowing AI assistant cube hovering nearby, all the scattered platforms from before now connected by glowing bridges flowing into one unified hub, data streams visualized as small flowing particles, warm lighting, pastel blue and soft orange accents, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s04_architecture",
+    "prompt": "Isometric 3D miniature scene of a two-level tower structure, top level has a friendly robot commander figure with a crown managing tasks, bottom level shows a smaller specialized worker robot at a workstation with API screens, glowing data pathways connecting the two levels, security shield icon between levels, soft shadows, pastel blue and purple accents, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s06_agentflow",
+    "prompt": "Isometric 3D miniature scene of a circular conveyor belt system with a small robot figure moving through stations labeled Think Act Observe in a loop, thought bubbles at Think station, tool icons at Act station, magnifying glass at Observe station, glowing arrows showing the cyclic flow, soft shadows, pastel blue and green accents, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s08_prompts",
+    "prompt": "Isometric 3D miniature scene of a tiny professor figure writing on a floating digital whiteboard, instruction text transforming into flowing pathways that lead into a small robot student sitting at a desk absorbing the knowledge, classroom setting with miniature desks and books, soft shadows, pastel blue and warm yellow accents, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s09_evaluation",
+    "prompt": "Isometric 3D miniature scene of a quality control assembly line, small robot judge figure with a gavel sitting at an elevated desk, test documents flowing on a conveyor belt past the judge who stamps them with scores, rating stars and checkmarks floating above approved items, soft shadows, pastel blue and coral accents, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s12_lessons",
+    "prompt": "Isometric 3D miniature scene showing a winding path through small obstacles and challenges, tiny flag markers along the route showing progress, some paths crossed out as wrong turns, a small student figure at the end looking back at the journey traveled, notebook and pencil props nearby, soft shadows, pastel blue and warm sunset orange tones, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s13_future",
+    "prompt": "Isometric 3D miniature scene of a campus pathway stretching toward a glowing horizon, small milestone pillars along the road, tiny graduation cap floating at the destination, small student figures walking forward on the path, miniature university buildings and trees on the sides, sunrise lighting with optimistic warm glow, pastel blue and gold accents, clean minimal isometric illustration style, white background"
+  },
+  {
+    "id": "s14_thankyou",
+    "prompt": "Isometric 3D miniature scene of a small lecture hall or auditorium with tiny empty seats facing a podium, a large friendly open door with warm light streaming through, small question mark symbols floating gently in the air, welcoming atmosphere, soft shadows, pastel blue and warm gold color palette, clean minimal isometric illustration style, white background"
+  }
+]
