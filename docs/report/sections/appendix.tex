@@ -1,0 +1,145 @@
+\section{Appendix}
+\label{sec:appendix}
+
+This appendix provides supplementary materials including extended data, configuration details, and usage instructions.
+
+\subsection{Extended Data}
+
+\subsubsection{Evaluation Question Categories}
+
+\tabref{tab:full-categories} provides the complete breakdown of evaluation questions by category with example questions.
+
+\begin{table}[H]
+    \centering
+    \caption{Full question category breakdown with examples}
+    \label{tab:full-categories}
+    \begin{tabularx}{\textwidth}{lrX}
+        \toprule
+        \textbf{Category} & \textbf{Count} & \textbf{Example Questions} \\
+        \midrule
+        courses & 13 & ``How many credits is IA?'', ``What AI courses are available?'', ``Compare PRO1 and PRO2'' \\
+        exams & 5 & ``When is the BD final?'', ``What exams are next week?'', ``Are there conflicts between EDA and BD?'' \\
+        professors & 4 & ``Who teaches IA?'', ``What is Jordi Petit's email?'', ``Find database professors'' \\
+        news & 3 & ``What's new at FIB?'', ``Any upcoming hackathons?'', ``International opportunities?'' \\
+        academic & 2 & ``What is the current semester?'', ``When does next semester start?'' \\
+        classrooms & 2 & ``How many classrooms?'', ``Classrooms in building A5?'' \\
+        personal & 4 & ``When is my next exam?'', ``What courses am I enrolled in?'', ``What do I have tomorrow?'' \\
+        multi\_tool & 5 & ``Tell me everything about EDA'', ``I want to take AI, who teaches it?'' \\
+        ambiguous & 4 & ``Help me'', ``The course'', ``Is it hard?'', ``What should I do?'' \\
+        web\_search & 3 & ``Job prospects in Barcelona?'', ``How does FIB compare to other schools?'' \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsubsection{Metric Rubrics}
+
+Each evaluation metric includes detailed rubrics for the LLM judge. \tabref{tab:metric-rubrics} summarizes the key correct and incorrect behaviors for each metric.
+
+\begin{table}[H]
+    \centering
+    \caption{Summary of evaluation metric rubrics}
+    \label{tab:metric-rubrics}
+    \begin{tabularx}{\textwidth}{lXX}
+        \toprule
+        \textbf{Metric} & \textbf{Correct Behaviors} & \textbf{Incorrect Behaviors} \\
+        \midrule
+        Relevance & Directly answers question; stays on topic; addresses all key elements & Provides unrelated info; ignores key aspects; goes off-topic \\
+        \midrule
+        Helpfulness & Actionable information; includes links/resources; clear next steps & Vague/generic info; missing details; leaves user confused \\
+        \midrule
+        Conciseness & No filler; no redundancy; appropriate length for question complexity & Excessive introductions; repeated info; disproportionately long \\
+        \midrule
+        Structure & Appropriate formatting (lists, tables); logical organization; easy to scan & Wall of text; inconsistent formatting; scattered information \\
+        \midrule
+        Tone & Professional; friendly; appropriate for academic context & Rude; dismissive; overly casual; condescending \\
+        \midrule
+        Error Handling & Clear acknowledgment of limitations; factual; suggests alternatives & Fabrication; vague non-answers; excessive apologies \\
+        \midrule
+        Tool Approp. & Correct tool selection; efficient usage; appropriate parameters & Wrong tools; redundant calls; failure to use needed tools \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsubsection{Complete Tool List}
+
+\tabref{tab:tools-complete} lists all available tools with their parameters.
+
+\begin{table}[H]
+    \centering
+    \caption{Complete tool reference}
+    \label{tab:tools-complete}
+    \begin{tabularx}{\textwidth}{lXl}
+        \toprule
+        \textbf{Tool} & \textbf{Key Parameters} & \textbf{Auth} \\
+        \midrule
+        \code{search\_courses} & query, semester, study\_plan, course\_type, credits\_min/max & Public \\
+        \code{get\_course\_details} & course\_code & Public \\
+        \code{search\_exams} & course\_code, start\_date, end\_date, semester, year, exam\_type & Public \\
+        \code{get\_upcoming\_exams} & days\_ahead, study\_plan & Public \\
+        \code{search\_professors} & name, course, department & Public \\
+        \code{get\_academic\_terms} & --- & Public \\
+        \code{get\_current\_term} & --- & Public \\
+        \code{get\_fib\_news} & limit & Public \\
+        \code{list\_classrooms} & building & Public \\
+        \midrule
+        \code{get\_my\_profile} & --- & OAuth \\
+        \code{get\_my\_courses} & include\_grades & OAuth \\
+        \code{get\_my\_schedule} & day & OAuth \\
+        \code{get\_my\_notices} & course\_code & OAuth \\
+        \code{internet\_search} & query, max\_results, topic & --- \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{Configuration Details}
+
+\subsubsection{Environment Variables}
+
+The system requires several environment variables for proper operation. Key variables include the FIB API credentials (client ID and secret), LangSmith tracing keys for debugging, Tavily API key for web search capabilities, and Google Cloud project settings for Vertex AI access. These should be defined in a standard environment file.
+
+\subsubsection{FIB API Registration}
+
+To utilize the system, one must first obtain FIB API credentials. This involves visiting the FIB API registration page, logging in with valid university credentials, and registering a new application. The registration process requires setting the OAuth redirect URI to the local callback address, after which the client ID and secret are generated.
+
+\subsubsection{OAuth Authentication}
+
+Accessing private endpoints necessitates an OAuth authentication flow. The provided authentication script initiates a local server and opens a browser window for the user to log in via the FIB portal. Upon successful authentication, the resulting tokens are securely stored locally for subsequent use by the agent.
+
+\subsubsection{Google Cloud Setup}
+
+For the LLM backbone, the system relies on Google Vertex AI. Users must install the Google Cloud CLI, authenticate their session, set the active project, and configure application default credentials to authorize the API calls.
+
+\subsection{User Guide}
+
+\subsubsection{Quick Start}
+
+Getting started with the agent involves installing the necessary dependencies using the project's package manager. Once installed, the agent can be tested interactively using LangGraph Studio or invoked programmatically via Python scripts.
+
+\subsubsection{Evaluation Pipeline}
+
+The evaluation pipeline is automated via make commands. Users can run inference on the full question set using a specific model and then trigger the evaluation process on the generated results. The system also includes a visualization dashboard that can be served locally to inspect the evaluation metrics and reasoning.
+
+\subsubsection{MCP Server Usage}
+
+The project includes a Model Context Protocol server that exposes the agent's tools to other applications. This server can be started via the command line and uses standard input/output for communication, making it compatible with various MCP clients such as Claude Desktop.
+
+\subsubsection{Visualization Dashboard}
+
+The evaluation results include two HTML dashboards. The first visualizes data for a single evaluation run, offering an overview of metric scores, per-question breakdowns, and tool call trajectories. The second dashboard enables comparison between multiple evaluation runs, allowing for side-by-side metric analysis and tracking of model performance trends. These dashboards operate on static JSON files and do not require a backend server.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{dashboard-screenshot.png}
+    \caption{Evaluation dashboard showing metric scores, per-question results, and filtering capabilities for detailed analysis.}
+    \label{fig:dashboard}
+\end{figure}
+
+\subsection{Sample Inference Trajectories}
+
+\subsubsection{Simple Query Trajectory}
+
+For a simple query such as asking about the credits for a specific course, the interaction typically follows a linear path. The Root Agent receives the user's question and delegates the task to the Subagent. The Subagent then calls the course search tool with the appropriate query. Upon receiving the course details, including the credit value, the Subagent formulates a response, which the Root Agent then relays back to the user.
+
+\subsubsection{Personal Query Trajectory}
+
+Personal queries, such as asking about an upcoming exam, require a more complex flow involving authentication. The Root Agent first calls the private tool to retrieve the user's enrolled courses. With this context, it then instructs the Subagent to find upcoming exams specifically for those courses. The Subagent queries the exam schedule tool and returns the relevant dates and locations. Finally, the Root Agent synthesizes this information into a personalized response for the user.

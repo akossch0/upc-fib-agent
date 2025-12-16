@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant U as User
+    participant M as Main Agent
+    participant S as Public Subagent
+    participant API as FIB API
+    participant W as Web Search
+
+    U->>M: "When is my next exam?"
+    
+    Note over M: Detect personal context needed
+    M->>API: get_my_courses()
+    API-->>M: [BD, EDA, IA]
+    
+    Note over M: Delegate to subagent
+    M->>S: task("Find exams for BD, EDA, IA")
+    S->>API: search_exams(course_code="BD")
+    S->>API: search_exams(course_code="EDA")
+    S->>API: search_exams(course_code="IA")
+    API-->>S: Exam schedules
+    S-->>M: Formatted exam info
+    
+    M-->>U: "Your next exam is BD on Jan 15..."

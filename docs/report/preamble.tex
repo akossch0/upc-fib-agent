@@ -1,0 +1,84 @@
+% Document class
+\documentclass[11pt,a4paper]{article}
+
+% Encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page geometry
+\usepackage[
+    top=2.5cm,
+    bottom=2.5cm,
+    left=3cm,
+    right=3cm
+]{geometry}
+
+% Typography
+\usepackage{microtype}
+\usepackage{parskip}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Graphics and figures
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% Improve figure placement - reduce empty space
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.8}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{5}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+% Colors
+\usepackage[dvipsnames]{xcolor}
+
+% Code listings
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    tabsize=4,
+    showstringspaces=false
+}
+
+% Bibliography
+\usepackage[style=numeric,sorting=none,backend=biber]{biblatex}
+\addbibresource{references.bib}
+
+% Quotations
+\usepackage{csquotes}
+
+% Hyperlinks (load last for compatibility)
+\usepackage[
+    colorlinks=true,
+    linkcolor=NavyBlue,
+    citecolor=ForestGreen,
+    urlcolor=RoyalBlue,
+    bookmarks=true,
+    pdfusetitle
+]{hyperref}
+
+% Custom commands
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}

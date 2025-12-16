@@ -1,0 +1,24 @@
+\section{Conclusions}
+\label{sec:conclusions}
+
+This section summarizes the project's achievements, acknowledges limitations, and outlines directions for future development.
+
+\subsection{Summary}
+
+This project successfully developed a conversational AI agent for the Facultat d'Informàtica de Barcelona (FIB) that provides natural language access to university academic information. The agent integrates with the official FIB API to access course catalogs, exam schedules, professor directories, news, and user-specific data through OAuth authentication. It implements a hierarchical agent architecture using LangGraph and the deepagents library, featuring a root agent that handles user context and a specialized subagent for public API queries. The system achieves strong performance on relevance and helpfulness metrics, the two dimensions most critical for user satisfaction. Furthermore, it includes a comprehensive evaluation framework using the LLM-as-judge methodology with custom metrics and curated test questions. Finally, the project provides tool interoperability through an MCP server, enabling other AI assistants to access FIB data. The evaluation demonstrates that modern LLM agents, when properly configured with domain-specific tools and carefully engineered prompts, can effectively serve as natural language interfaces to structured APIs.
+
+\subsection{Contributions}
+
+The main contributions of this project are fourfold. First, we provide an open-source FIB API Agent, a fully functional conversational agent with a hierarchical architecture available for the FIB student community. Second, we introduce an Evaluation Dataset, a curated set of 45 questions across 10 categories and 4 complexity levels, annotated with expected tools and authentication requirements to enable systematic evaluation. Third, we established a reusable LLM-as-Judge Framework with 7 custom metrics, detailed rubrics, and visualization dashboards. Fourth, we implemented an MCP Server that exposes FIB tools, demonstrating AI tool interoperability standards in an educational context. Additionally, we have documented prompt engineering patterns for handling ambiguous queries, date reasoning, course disambiguation, and user context detection in university chatbot domains.
+
+\subsection{Limitations}
+
+Several limitations should be acknowledged. The private endpoints require manual OAuth token acquisition, which adds complexity and limits accessibility for casual users; a production deployment would require a proper OAuth flow with institutional integration. The LLM-as-judge methodology, while using detailed rubrics, inherits potential biases from the evaluator model, meaning perfect alignment with human judgment is not guaranteed. The current implementation treats each query independently without conversational memory, so multi-turn dialogues are not supported. The agent is also domain-specific, tightly coupled to FIB's API structure and terminology, meaning adaptation to other universities would require significant modification. As discussed in the results section, the error handling evaluation metric shows inconsistent scoring due to rubric interpretation issues. finally, the agent makes synchronous API calls, which can result in slower responses for queries requiring multiple tool invocations.
+
+\subsection{Future Work}
+
+Several directions could extend this work. Integrating Retrieval-Augmented Generation (RAG) with course syllabi, lecture notes, and historical data would enable the agent to answer questions beyond the current API scope. Implementing conversation memory using LangGraph's persistence layer would enable natural follow-up questions and contextual references. Building a user-facing interface, such as a Telegram bot or web chat, with proper authentication flows would make the agent accessible to the broader FIB community. Abstracting the tool layer to support multiple university APIs through a common interface would enable adaptation to other institutions. Extending the system to support agentic capabilities, such as setting reminders for exams or subscribing to announcements, would increase its practical utility. Improving the error handling metric rubric and adding human evaluation baselines would strengthen the evaluation framework. Finally, implementing streaming output would improve perceived latency for complex queries requiring multiple tool calls.
+
+\subsection{Final Remarks}
+
+This project demonstrates the feasibility of building practical conversational agents for educational information access using current LLM technology. The combination of hierarchical agent design, domain-specific tools, and systematic evaluation provides a template for similar applications in other institutional contexts. The open-source nature of this work aims to contribute to the growing ecosystem of AI-powered educational tools and encourage further research in conversational interfaces for university systems.

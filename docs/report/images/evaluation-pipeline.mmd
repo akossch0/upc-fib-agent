@@ -1,0 +1,28 @@
+flowchart LR
+    subgraph Input
+        Q[questions.json<br/>45 questions]
+        M[metrics.json<br/>7 metrics]
+    end
+
+    subgraph Inference["1. Inference"]
+        A[Agent]
+        I[inference_*.json<br/>Trajectories + Responses]
+    end
+
+    subgraph Evaluation["2. Evaluation"]
+        J[LLM Judge]
+        E[evaluation_*.json<br/>Scores + Reasoning]
+    end
+
+    subgraph Visualization["3. Visualization"]
+        V[visualize.html<br/>Dashboard]
+        C[compare.html<br/>Comparison]
+    end
+
+    Q --> A
+    A --> I
+    I --> J
+    M --> J
+    J --> E
+    E --> V
+    E --> C

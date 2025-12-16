@@ -1,0 +1,129 @@
+\section{Results}
+\label{sec:results}
+
+This section presents the evaluation methodology, quantitative results, and qualitative analysis of the FIB agent's performance.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{evaluation-pipeline.png}
+    \caption{Evaluation pipeline: questions are fed to the agent, responses are collected with tool call trajectories, and the LLM judge scores each response across seven metrics.}
+    \label{fig:evaluation-pipeline}
+\end{figure}
+
+\subsection{Experimental Setup}
+
+\subsubsection{Models Tested}
+We evaluated two Gemini models as the agent backbone. Gemini 2.5 Flash was tested as a fast, cost-effective model optimized for speed, while Gemini 2.5 Pro was evaluated for its higher capacity for complex reasoning. Both models were accessed through Google Vertex AI using application default credentials.
+
+\subsubsection{Evaluation Judge}
+For the LLM-as-judge evaluation, we employed Gemini 2.5 Flash Lite as the evaluator model. This lighter model provided sufficient capability for rubric-based scoring while maintaining cost efficiency across the substantial evaluation set, which involved 315 evaluations per run (45 questions multiplied by 7 metrics).
+
+\subsubsection{Evaluation Dataset}
+The dataset comprises 45 manually curated questions distributed across 10 categories, as detailed in \tabref{tab:categories}.
+
+\begin{table}[H]
+    \centering
+    \caption{Question distribution by category}
+    \label{tab:categories}
+    \begin{tabular}{lrl}
+        \toprule
+        \textbf{Category} & \textbf{Count} & \textbf{Description} \\
+        \midrule
+        courses & 13 & Course information queries \\
+        exams & 5 & Exam schedules and rooms \\
+        professors & 4 & Faculty information \\
+        news & 3 & FIB announcements \\
+        academic & 2 & Terms and semesters \\
+        classrooms & 2 & Room information \\
+        personal & 4 & User-specific (requires OAuth) \\
+        multi\_tool & 5 & Complex multi-aspect queries \\
+        ambiguous & 4 & Vague queries needing clarification \\
+        web\_search & 3 & External information queries \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The questions span four complexity levels. Simple questions are direct factual queries requiring a single tool. Multi-step questions require multiple tool calls or comparisons. Contextual questions depend on user context or implicit information. Finally, ambiguous questions are vague or incomplete queries that require the agent to ask for clarification.
+
+\subsubsection{Evaluation Metrics}
+We defined seven evaluation metrics, each accompanied by a detailed persona, rubric describing correct and incorrect behaviors, evaluation steps, and reminders for the LLM judge. Relevance measures whether the response addresses the user's question. Helpfulness assesses if the response is actionable and useful. Conciseness checks if the response is appropriately brief without losing information. Structure evaluates the organization and formatting of the response. Tone ensures the response is professional and appropriate for an academic context. Error Handling looks for graceful management of missing data or failures. Finally, Tool Appropriateness determines if the agent selected the right tools for the task. Each metric produces a score from 0.0 to 1.0 along with a textual reasoning.
+
+\subsection{Quantitative Results}
+
+\tabref{tab:results-comparison} presents the average scores across all 45 questions for both models.
+
+\begin{table}[H]
+    \centering
+    \caption{Evaluation results comparing Gemini Flash and Pro models}
+    \label{tab:results-comparison}
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Metric} & \textbf{Flash} & \textbf{Pro} & \textbf{Target} \\
+        \midrule
+        Relevance & 0.90 & 0.89 & $>$0.85 \\
+        Helpfulness & 0.89 & 0.93 & $>$0.85 \\
+        Conciseness & 0.85 & 0.83 & $>$0.80 \\
+        Structure & 0.77 & 0.80 & $>$0.75 \\
+        Tone & 0.85 & 0.85 & $>$0.80 \\
+        Error Handling & 0.51 & 0.43 & $>$0.70 \\
+        Tool Appropriateness & 0.77 & 0.78 & $>$0.80 \\
+        \midrule
+        \textbf{Average} & \textbf{0.79} & \textbf{0.79} & --- \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Several key observations emerge from these results. Both models achieve the target threshold for relevance and helpfulness, which are the two most critical metrics for user satisfaction. Conciseness, structure, and tone also meet their respective targets, indicating that the responses are well-formatted and professional. However, error handling significantly underperforms the target, a result that analysis suggests is partly due to overly strict rubric interpretation. Tool appropriateness is slightly below target, which is affected by the indirect tool calls inherent in subagent delegation.
+
+\subsubsection{Performance by Category}
+
+\tabref{tab:category-performance} shows relevance scores broken down by question category.
+
+\begin{table}[H]
+    \centering
+    \caption{Relevance scores by question category (Flash model)}
+    \label{tab:category-performance}
+    \begin{tabular}{lr}
+        \toprule
+        \textbf{Category} & \textbf{Avg. Relevance} \\
+        \midrule
+        courses & 0.95 \\
+        exams & 0.92 \\
+        professors & 0.88 \\
+        classrooms & 0.90 \\
+        academic & 0.95 \\
+        news & 0.87 \\
+        personal & 0.85 \\
+        multi\_tool & 0.82 \\
+        ambiguous & 0.93 \\
+        web\_search & 0.90 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Simple factual queries regarding courses, exams, and academic terms achieve the highest scores. Ambiguous queries also score well because the agent appropriately asks for clarification, behavior that the rubric explicitly scores as relevant for vague queries.
+
+\subsection{Qualitative Analysis}
+
+\subsubsection{Successful Patterns}
+
+The agent demonstrates strong performance in handling simple course queries. For example, when asked "How many credits is the IA course?", the agent correctly identified the course and responded concisely with "The IA course (Artificial Intelligence) has 6 credits." This response achieved perfect scores for relevance, helpfulness, and conciseness.
+
+The agent also handles ambiguous queries effectively. When presented with a vague request like "Help me", the agent responded by offering a helpful menu of capabilities, asking the user to specify their need regarding course information, exam schedules, professor contacts, or personal data. This approach of guiding the user rather than guessing resulted in high relevance and helpfulness scores.
+
+\subsubsection{Challenging Cases}
+
+Multi-tool complexity presents a greater challenge. In response to "Tell me everything about the EDA course", the agent provided a comprehensive answer including course details, professors, and exam schedules. However, the structure score suffered due to inconsistent formatting, and tool appropriateness was marked down because the agent made multiple search calls that could have been consolidated.
+
+Error handling verbosity also proved to be an issue. When unable to find a course code, the agent tended to offer apologetic and speculative explanations rather than a direct statement. For instance, responding to a query about a non-existent course "XYZ" with a lengthy apology and potential reasons for the failure resulted in a low error handling score, as the rubric prefers more direct communication of the error.
+
+\subsection{Discussion}
+
+\subsubsection{Error Handling Metric Analysis}
+The error handling metric significantly underperforms expectations. Upon analysis, we identified two contributing factors. First, there were false negatives where responses that correctly answered questions received low error handling scores because the judge interpreted "error handling" as requiring explicit acknowledgment of limitations even when none were encountered. Second, when errors did occur, the agent tended toward verbose apologies with speculative explanations, which the rubric penalizes. This suggests that both prompt refinement to reduce verbosity on errors and rubric clarification are needed.
+
+\subsubsection{Tool Appropriateness and Subagent Delegation}
+Tool appropriateness scores are affected by the hierarchical architecture. When the root agent delegates to the subagent via the task tool, the evaluation only sees "task" as the tool call, not the underlying tools called by the subagent. This is a limitation of the current evaluation framework that could be addressed by flattening tool call trajectories across agent boundaries or by scoring delegation as appropriate when the subagent handles the query correctly.
+
+\subsubsection{Model Comparison}
+Gemini Flash and Pro achieved nearly identical overall scores. The Pro model showed marginal advantages in helpfulness and structure, providing slightly more comprehensive and better-formatted responses. Conversely, Flash showed advantages in conciseness and error handling, offering less verbose responses. Given the minimal quality difference and Flash's faster response times and lower cost, Gemini 2.5 Flash is recommended as the default model for this application.

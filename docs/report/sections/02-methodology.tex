@@ -1,0 +1,56 @@
+\section{Methodology}
+\label{sec:methodology}
+
+This section describes the theoretical foundations, design approach, and technologies underlying the FIB conversational agent.
+
+\subsection{Background}
+
+\subsubsection{Conversational AI Agents}
+
+Conversational AI has evolved significantly from rule-based chatbots to sophisticated agents powered by Large Language Models (LLMs) capable of reasoning, planning, and taking actions~\cite{react}. Modern agents combine the extensive natural language understanding of LLMs with the ability to interact with external tools and APIs. The key distinction between a standard LLM chatbot and an agent is this capacity for tool use; agents can call external functions to retrieve information or perform actions, subsequently incorporating these results into their responses. This paradigm, known as tool-augmented language models, enables LLMs to overcome the limitations of their static training data by accessing real-time information~\cite{langchain-agents}.
+
+\subsubsection{ReAct: Reasoning and Acting}
+
+The ReAct paradigm~\cite{react} proposes a synergistic approach where reasoning traces, or "thoughts," are interleaved with actions. The agent follows a continuous loop consisting of a thought, where it reasons about the current state and decides on a course of action; an action, which involves calling a tool or API; and an observation, where it processes the tool's response. This cyclical approach has proven effective for knowledge-intensive tasks requiring multi-step reasoning. Our implementation builds on these principles through the deepagents library, a hierarchical agent harness that structures this interaction.
+
+\subsubsection{Agent Harnesses and deepagents}
+
+As LLM agents have evolved from simple tool-calling patterns to complex multi-step workflows, the need for standardized agent harnesses has emerged. These frameworks provide common infrastructure for planning, context management, and hierarchical task delegation. The \textbf{deepagents} library~\cite{deepagents} addresses these needs by offering hierarchical subagent spawning to delegate subtasks to specialized agents with isolated contexts. It provides planning tools to decompose complex tasks into trackable steps, manages context to prevent window overflow through file system abstraction, and leverages LangGraph for stateful graph execution and checkpointing. Our implementation utilizes this library to create a root agent equipped with private tools and a subagent dedicated to public FIB API queries, enabling focused system prompts and establishing clean security boundaries.
+
+\subsubsection{LLM-as-Judge Evaluation}
+
+Evaluating open-ended language generation presents challenges because traditional metrics like BLEU or ROUGE correlate poorly with human judgments of quality~\cite{geval}. The LLM-as-judge approach addresses this by using a capable language model as an evaluator, prompted with specific criteria and rubrics. G-Eval~\cite{geval} introduced a framework where the LLM judge follows structured evaluation steps to produce scores. This method achieves a higher correlation with human judgments than reference-based metrics, particularly for dimensions like helpfulness and coherence that require semantic understanding.
+
+\subsubsection{Model Context Protocol}
+
+The Model Context Protocol (MCP)~\cite{mcp} is an open standard designed to connect AI assistants to external data sources and tools. It defines a client-server architecture where MCP Servers expose tools, resources, and prompts, and MCP Clients, such as AI applications, discover and invoke these capabilities. By implementing an MCP server, our FIB tools become accessible to any MCP-compatible client, thereby promoting interoperability across AI ecosystems.
+
+\subsection{Approach}
+
+\subsubsection{Hierarchical Agent Design}
+
+Rather than employing a flat architecture with all tools available at a single level, we implement a hierarchical design comprising a root agent and a specialized subagent. The Root Agent handles user interaction, private authenticated tools, and internet search, and is responsible for task delegation. It operates with a comprehensive system prompt designed to handle implicit context, date reasoning, and ambiguous queries. The Public FIB Subagent specializes in public FIB API queries, such as those for courses, exams, professors, news, and classrooms. It utilizes a focused system prompt with specific tool selection guidelines and data presentation rules.
+
+This separation of concerns provides several benefits. It allows for focused prompts, where each agent has a specialized system prompt, reducing cognitive load and improving instruction following. It creates a security boundary where private tools requiring OAuth remain at the root level, while public tools are delegated. Furthermore, it enhances modularity, as the subagent can be tested and refined independently. The root agent delegates to the subagent using a task tool call, which is an internal implementation detail hidden from users.
+
+\subsubsection{Tool Abstraction}
+
+Each FIB API endpoint is wrapped as a typed Python function. These functions include type-annotated parameters with default values, docstrings describing their purpose and argument semantics, Pydantic validation of API responses, and consistent error handling via decorators. This abstraction allows the LLM to understand tool capabilities through function signatures and docstrings, while Pydantic models ensure type safety and facilitate IDE support.
+
+\subsubsection{System Prompt Engineering}
+
+The system prompts serve as the primary mechanism for guiding agent behavior, with several key design decisions shaping their structure. For personalized queries, the agent is instructed to first establish user context by checking enrolled courses before searching public data. Common patterns implying implicit context, such as "my exam" or "tomorrow," are documented with specific resolution strategies. To handle date-relative queries without internet search, explicit weekday-to-integer mappings are provided. The prompt also includes a disambiguation strategy for ambiguous queries; for instance, if "Machine Learning" matches multiple courses, the agent is instructed to prioritize likely matches and present a few options rather than listing all. Finally, an output quality checklist ensures the agent verifies that there is no redundancy, no vague hedging, consistent formatting, and that all requested items are addressed before responding.
+
+\subsection{Tools and Technologies}
+
+The project employs a suite of technologies to achieve its goals. LangGraph serves as the underlying stateful graph execution engine with checkpointing capabilities. On top of this, deepagents functions as the hierarchical agent harness, providing subagent spawning, planning tools, and context management. The LLM backbone consists of Google Vertex AI models, specifically Gemini 2.5 Flash for speed and Gemini 2.5 Pro for complex queries. Data validation and type-safe API response parsing are handled by Pydantic. For evaluation, the project uses deepeval (GEval), an LLM-as-judge framework with customizable metrics. Tavily provides an external web search API for information beyond the FIB scope, and the MCP Protocol ensures tool server standardization for AI interoperability.
+
+\subsection{Data Sources}
+
+\subsubsection{FIB API}
+
+The FIB API (\url{https://api.fib.upc.edu/v2}) provides programmatic access to university data and is the core data source for the agent. We integrate with a set of public endpoints that require a client ID, including the course catalog, exam schedules, faculty directory, classroom listings, academic terms, and news announcements. Additionally, we utilize private endpoints that require an OAuth2 bearer token to access user-specific information such as the user profile, enrolled courses, personal schedule, and course notices.
+
+\subsubsection{Evaluation Dataset}
+
+To ensure rigorous testing, we created a manually curated evaluation dataset consisting of 45 questions across 10 categories. These questions cover varying complexity levels. Simple queries involve direct factual questions like "How many credits is IA?". Multi-step queries require multiple tool calls, such as "Compare PRO1 and PRO2". Contextual queries depend on user context, for example, "When is my next exam?". Finally, ambiguous queries are vague and require clarification, such as "Help me" or "Is it hard?". Each question in the dataset is annotated with the expected tools, authentication requirements, and notes for evaluation.

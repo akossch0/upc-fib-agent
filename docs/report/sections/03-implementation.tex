@@ -1,0 +1,66 @@
+\section{Implementation}
+\label{sec:implementation}
+
+This section details the technical implementation of the FIB conversational agent, including its architecture, core components, and the solutions to key challenges encountered during development.
+
+\subsection{Architecture}
+
+The overall system architecture follows a hierarchical design where a root agent orchestrates user interaction and delegates specific tasks. The root agent manages user context, including authentication and profiles, and has direct access to private tools and external internet search via Tavily. When a query requires public university information, the root agent delegates this responsibility to a specialized public subagent via a specific task call. This public subagent then interacts with the public tools of the FIB API. This architecture effectively separates concerns: the root agent owns the user context and overall orchestration, the public subagent specializes in unauthenticated FIB API queries, and external search remains available at the root level for queries falling outside the university's scope.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{architecture.png}
+    \caption{Hierarchical agent architecture showing the root agent with private tools and the public FIB subagent with public tools.}
+    \label{fig:architecture}
+\end{figure}
+
+\subsection{Core Components}
+
+\subsubsection{FIB API Client}
+
+The \code{FIBAPIClient} class handles all HTTP communication with the FIB API. It is implemented using a singleton pattern, ensuring that a single client instance is reused across all tool calls to maintain connection pooling and authentication state. The client includes robust pagination handling, where the \code{\_get\_paginated()} method automatically follows pagination links to retrieve complete result sets. Additionally, a comprehensive error hierarchy with custom exceptions allows for precise error handling across the application, distinguishing between authentication issues, not-found errors, and rate limits.
+
+\subsubsection{Data Models}
+
+All responses from the FIB API are validated through Pydantic models to ensure data integrity. These models define the structure of various data types such as courses, exams, professors, classrooms, and news items, as well as user-specific data like profiles and schedules. Fields are explicitly typed and described, and properties are computed where necessary, such as determining if a course is active. This approach ensures that the data flowing through the system is well-defined and reliable.
+
+\subsubsection{Tool Layer}
+
+The tool layer wraps the API client methods into Python functions accessible to the agent. Each tool is decorated to handle API errors consistently. Public tools cover functionalities like searching courses, retrieving course details, finding exam schedules, looking up professors, and listing classrooms. Private tools provide access to the user's profile, enrolled courses, personal schedule, and notices. This abstraction allows the agent to interact with the API using high-level semantic actions rather than low-level HTTP requests.
+
+\subsubsection{Agent Creation}
+
+The agent is instantiated using a factory function that configures the authentication and selects the appropriate model strategy. The design supports different backend models, such as various versions of Gemini, through a flexible strategy pattern. The creation process assembles the toolset, including private tools and optional internet search, and initializes the hierarchical structure with the public subagent. This configuration ensures that the agent is correctly set up with the necessary capabilities and system prompts before handling user queries.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{agent-flow.png}
+    \caption{Agent execution flow showing the ReAct loop: the agent receives a query, reasons about it, selects and executes tools, observes results, and iterates until a final response is generated.}
+    \label{fig:agent-flow}
+\end{figure}
+
+\subsection{System Prompts}
+
+System prompts are central to guiding the agent's behavior and ensuring high-quality responses. The Root Agent Prompt includes instructions for planning multi-step queries, detecting implicit context (such as interpreting "my exam" as a request to check enrolled courses), and handling dates with explicit weekday mappings. It also defines strategies for disambiguating vague course names and includes a response quality checklist. The Public Subagent Prompt focuses on tool selection guidelines, specifying when to use specific search tools versus listing tools, and provides rules for data presentation, such as using tables for multi-item results and ensuring output quality by avoiding speculation.
+
+\subsection{MCP Server}
+
+To expose the FIB tools to external clients, an MCP server is implemented. This server registers the available tools, such as course search, and defines their input schemas. It handles incoming tool calls by dispatching them to the appropriate underlying functions. This setup adheres to the Model Context Protocol, allowing the FIB agent's capabilities to be discovered and used by other MCP-compatible AI systems.
+
+\subsection{Challenges and Solutions}
+
+\subsubsection{Ambiguous Course Queries}
+One significant challenge was handling ambiguous queries, such as a search for "Machine Learning," which matches multiple courses across different programs like the bachelor's and master's degrees. To address this, the system prompt instructs the agent to prioritize courses from the user's enrolled study plan if authenticated. For general queries, it prioritizes bachelor's courses and presents the most likely matches with their codes and programs, asking for clarification only after providing useful initial information.
+
+\subsubsection{Date-Relative Queries}
+Queries involving relative dates, such as "What do I have tomorrow?", posed a challenge as they require knowledge of the current date and its mapping to a weekday. The solution involved providing the agent with the current date in its context and explicitly documenting the day-to-integer mapping (e.g., Monday=1). This allows the agent to call the schedule tool with the correct parameters without needing to perform an internet search to resolve the date.
+
+\subsubsection{OAuth Token Management}
+Accessing private endpoints requires OAuth2 tokens that expire and need refreshing. The \code{FIBOAuthClient} class was implemented to handle the interactive authorization flow, including a local callback server. It persists tokens to a file and automatically refreshes them when they expire. If authentication is unavailable, the system gracefully falls back to public-only functionality.
+
+\subsubsection{API Pagination}
+List endpoints in the API return paginated results, which complicates data retrieval. A generic pagination method was implemented in the client to handle this transparently. This method iterates through the pages by following the \code{next} links provided in the response, aggregating all results into a single list before returning them to the caller.
+
+\subsection{Project Structure}
+
+The codebase is organized into a modular structure. The source code directory contains the main agent logic, the API client with its pagination and error handling, the OAuth authorization flow, and the MCP server implementation. Data models are defined separately using Pydantic, and tools are grouped by functionality. Scripts are provided for running inference and evaluation metrics, while the evaluation directory contains the dataset, results, and visualization tools.
