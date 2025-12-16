@@ -220,3 +220,16 @@ __marimo__/
 
 
 .deepeval/
+
+# LaTeX
+docs/report/build/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
