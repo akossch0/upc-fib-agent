@@ -233,3 +233,9 @@ docs/report/build/
 *.run.xml
 *.synctex.gz
 *.toc
+
+# Models
+models/
+
+# MacOS junk
+.DS_Store
