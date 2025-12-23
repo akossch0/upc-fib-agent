@@ -14,6 +14,10 @@ from src.tools import (
     get_course_details,
     get_current_term,
     get_fib_news,
+    get_my_courses,
+    get_my_notices,
+    get_my_profile,
+    get_my_schedule,
     get_upcoming_exams,
     list_classrooms,
     search_courses,
@@ -209,6 +213,74 @@ TOOL_DEFINITIONS = [
             },
         },
     ),
+    Tool(
+        name="get_my_profile",
+        description="Get the authenticated user's profile information (name, email, student ID, etc). Requires OAuth.",
+        inputSchema={
+            "type": "object",
+            "properties": {},
+        },
+    ),
+    Tool(
+        name="get_my_courses",
+        description="Get the authenticated user's enrolled courses. Requires OAuth.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "semester": {
+                    "type": "string",
+                    "enum": ["Q1", "Q2"],
+                    "description": "Filter by semester (Q1 or Q2)",
+                },
+                "passed_only": {
+                    "type": "boolean",
+                    "description": "Only show courses the user has passed",
+                    "default": False,
+                },
+                "with_grades": {
+                    "type": "boolean",
+                    "description": "Include grade information in results",
+                    "default": False,
+                },
+            },
+        },
+    ),
+    Tool(
+        name="get_my_schedule",
+        description="Get the authenticated user's class schedule. Requires OAuth.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "day": {
+                    "type": "string",
+                    "enum": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                    "description": "Filter by day of week",
+                },
+                "course_code": {
+                    "type": "string",
+                    "description": "Filter by specific course code",
+                },
+            },
+        },
+    ),
+    Tool(
+        name="get_my_notices",
+        description="Get the authenticated user's course notices and announcements. Requires OAuth.",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "course_code": {
+                    "type": "string",
+                    "description": "Filter notices by course code",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum number of notices to return (default 10)",
+                    "default": 10,
+                },
+            },
+        },
+    ),
 ]
 
 
@@ -222,6 +294,10 @@ TOOL_HANDLERS = {
     "get_current_term": get_current_term,
     "get_fib_news": get_fib_news,
     "list_classrooms": list_classrooms,
+    "get_my_profile": get_my_profile,
+    "get_my_courses": get_my_courses,
+    "get_my_schedule": get_my_schedule,
+    "get_my_notices": get_my_notices,
 }
 
 
