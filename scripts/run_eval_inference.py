@@ -30,7 +30,14 @@ def generate_output_filename(model_info: dict[str, Any], timestamp: datetime) ->
         model_name = model_info["name"]
     else:
         class_name = model_info["class"].split(".")[-1]
-        model_kwarg = model_info["kwargs"].get("model", "unknown")
+        kwargs = model_info["kwargs"]
+        if "model" in kwargs:
+            model_kwarg = kwargs["model"]
+        elif "model_path" in kwargs:
+            # Extract model name from path (e.g., "models/qwen2.5-7b-instruct.gguf" -> "qwen2.5-7b-instruct")
+            model_kwarg = Path(kwargs["model_path"]).stem.split("-q")[0]  # Remove quantization suffix
+        else:
+            model_kwarg = "unknown"
         model_name = f"{class_name}_{model_kwarg}"
 
     safe_model_name = model_name.replace("/", "-").replace(":", "-")

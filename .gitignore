@@ -235,7 +235,7 @@ docs/report/build/
 *.toc
 
 # Models
-models/
+/models/
 
 # MacOS junk
 .DS_Store
