@@ -7,7 +7,8 @@ and implements tool calling via Qwen's XML-based format.
 
 import json
 import re
-from typing import Any, Iterator, List, Optional, Sequence
+from collections.abc import Iterator, Sequence
+from typing import Any, Optional
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models import BaseChatModel, LanguageModelInput
@@ -17,7 +18,6 @@ from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from pydantic import Field, model_validator
-
 
 TOOL_SYSTEM_PROMPT_TEMPLATE = """{system_prompt}
 
@@ -47,7 +47,7 @@ class ChatLlamaCppTools(BaseChatModel):
     temperature: float = 0.7
     top_p: float = 0.95
     verbose: bool = False
-    tools: List[dict] = Field(default_factory=list)
+    tools: list[dict] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_environment(self) -> "ChatLlamaCppTools":
@@ -104,7 +104,7 @@ class ChatLlamaCppTools(BaseChatModel):
             client=self.client,
         )
 
-    def _format_messages(self, messages: List[BaseMessage]) -> List[dict]:
+    def _format_messages(self, messages: list[BaseMessage]) -> list[dict]:
         formatted = []
         system_content = ""
 
@@ -159,8 +159,8 @@ class ChatLlamaCppTools(BaseChatModel):
 
     def _generate(
         self,
-        messages: List[BaseMessage],
-        stop: Optional[List[str]] = None,
+        messages: list[BaseMessage],
+        stop: Optional[list[str]] = None,
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:
@@ -186,8 +186,8 @@ class ChatLlamaCppTools(BaseChatModel):
 
     def _stream(
         self,
-        messages: List[BaseMessage],
-        stop: Optional[List[str]] = None,
+        messages: list[BaseMessage],
+        stop: Optional[list[str]] = None,
         run_manager: Optional[CallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> Iterator[ChatGenerationChunk]:
@@ -211,6 +211,4 @@ class ChatLlamaCppTools(BaseChatModel):
 
         _, tool_calls = self._parse_tool_calls(full_content)
         if tool_calls:
-            yield ChatGenerationChunk(
-                message=AIMessageChunk(content="", tool_calls=tool_calls)
-            )
+            yield ChatGenerationChunk(message=AIMessageChunk(content="", tool_calls=tool_calls))
