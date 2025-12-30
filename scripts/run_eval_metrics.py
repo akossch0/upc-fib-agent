@@ -138,13 +138,26 @@ def filter_results(
     return results
 
 
-def generate_output_filename(inference_file: str, timestamp: datetime) -> str:
-    """Generate output filename based on inference file and timestamp."""
+def extract_model_name(model_info: dict[str, Any]) -> str:
+    """Extract a clean model name from model info dict."""
+    if model_info.get("type") == "gemini":
+        return model_info.get("name", "unknown")
+    # Custom model - extract from kwargs
+    kwargs = model_info.get("kwargs", {})
+    if "model" in kwargs:
+        return kwargs["model"]
+    if "model_path" in kwargs:
+        # Extract model name from path (e.g., "models/qwen2.5-7b-instruct-q4_k_m.gguf" -> "qwen2.5-7b-instruct")
+        return Path(kwargs["model_path"]).stem.split("-q")[0]
+    return "unknown"
+
+
+def generate_output_filename(model_info: dict[str, Any], timestamp: datetime) -> str:
+    """Generate output filename based on model info and timestamp."""
     ts_str = timestamp.strftime("%Y%m%d_%H%M%S")
-    base_name = Path(inference_file).stem
-    if base_name.startswith("inference_"):
-        base_name = base_name[len("inference_") :]
-    return f"evaluation_{base_name}_{ts_str}.json"
+    model_name = extract_model_name(model_info)
+    safe_model_name = model_name.replace("/", "-").replace(":", "-")
+    return f"evaluation_{safe_model_name}_{ts_str}.json"
 
 
 def write_checkpoint(
@@ -321,7 +334,8 @@ def main():
         output_path = Path(args.output)
     else:
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-        output_path = RESULTS_DIR / generate_output_filename(inference_path.name, run_timestamp)
+        model_info = inference_data.get("model", {})
+        output_path = RESULTS_DIR / generate_output_filename(model_info, run_timestamp)
 
     if output_path:
         print(f"Results will be saved to: {output_path}", file=sys.stderr)
