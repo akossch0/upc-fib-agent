@@ -6,7 +6,8 @@ Hierarchical Design and LLM-as-Judge Evaluation}
 \author{
     Ákos Schneider\\
     \texttt{akos.schneider@estudiantat.upc.edu}\\[0.5em]
-    TODO: Ignasi
+    Ignasi Cervero\\
+    \texttt{ignasi.cervero@estudiantat.upc.edu}\\[0.5em]
     Human Language Engineering\\
     Universitat Politècnica de Catalunya\\
     Facultat d'Informàtica de Barcelona
@@ -18,7 +19,7 @@ Hierarchical Design and LLM-as-Judge Evaluation}
 \maketitle
 
 \begin{abstract}
-This project presents a conversational AI agent for the Facultat d'Informàtica de Barcelona (FIB) that provides natural language access to university academic information. The agent integrates with the official FIB API to retrieve course catalogs, exam schedules, professor contacts, and user-specific data through OAuth authentication. We implement a hierarchical agent architecture using the deepagents library~\cite{deepagents}, where a root agent handles user context and private tools while delegating public API queries to a specialized subagent. The system supports multiple Gemini models and includes an internet search fallback for queries outside the FIB domain.
+This project presents a conversational AI agent for the Facultat d'Informàtica de Barcelona (FIB) that provides natural language access to university academic information. The agent integrates with the official FIB API to retrieve course catalogs, exam schedules, professor contacts, and user-specific data through OAuth authentication. We implement a hierarchical agent architecture using the deepagents library~\cite{deepagents}, where a root agent handles user context and private tools while delegating public API queries to a specialized subagent. The system supports multiple Gemini models and includes an internet search fallback for queries outside the FIB domain. We additionally evaluate local models (Qwen 2.5 7B, Llama 3.2 3B) to explore privacy-preserving deployment options.
 
 To systematically evaluate agent performance, we developed an LLM-as-judge framework with seven custom metrics: relevance, helpfulness, conciseness, structure, tone, error handling, and tool appropriateness. Evaluation on a curated dataset of 45 questions across 10 categories demonstrates strong performance, with the agent achieving 0.90 relevance and 0.89 helpfulness scores. We also provide a Model Context Protocol (MCP) server for tool interoperability with other AI assistants.
 

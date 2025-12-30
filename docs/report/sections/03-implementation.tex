@@ -45,7 +45,16 @@ System prompts are central to guiding the agent's behavior and ensuring high-qua
 
 \subsection{MCP Server}
 
-To expose the FIB tools to external clients, an MCP server is implemented. This server registers the available tools, such as course search, and defines their input schemas. It handles incoming tool calls by dispatching them to the appropriate underlying functions. This setup adheres to the Model Context Protocol, allowing the FIB agent's capabilities to be discovered and used by other MCP-compatible AI systems.
+To expose the FIB tools to external clients, an MCP server is implemented following the Model Context Protocol specification. This server registers the available tools, such as course search, exam lookup, and personal schedule retrieval, and defines their input schemas using JSON Schema. It handles incoming tool calls by dispatching them to the appropriate underlying functions and returning structured results.
+
+This design enables interoperability with MCP-compatible AI assistants. For example, \figref{fig:mcp-claude} demonstrates the integration with Claude Desktop, where the assistant uses the FIB MCP tools to answer a user's question about upcoming exams. The assistant automatically invokes \texttt{get\_my\_courses} to retrieve enrolled courses, \texttt{get\_current\_term} to determine the active academic period, and then calls \texttt{search\_exams} for each course to compile a comprehensive exam schedule. This demonstrates how the modular tool design allows the same functionality to be accessed through different interfaces, whether our custom LangGraph agent or third-party AI assistants, without code duplication.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{mcp-claude-exams.png}
+    \caption{Claude Desktop using the FIB MCP server to answer an exam schedule query. The tool calls panel shows the automatic invocation of \texttt{get\_my\_courses}, \texttt{get\_current\_term}, and multiple \texttt{search\_exams} calls.}
+    \label{fig:mcp-claude}
+\end{figure}
 
 \subsection{Challenges and Solutions}
 

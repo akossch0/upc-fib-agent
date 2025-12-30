@@ -7,7 +7,11 @@ Usage:
 
 import asyncio
 
+from src.api import configure_oauth
 from src.mcp.server import run_server
+
+# Configure OAuth for private endpoints if credentials are available
+configure_oauth()
 
 if __name__ == "__main__":
     asyncio.run(run_server())

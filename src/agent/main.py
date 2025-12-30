@@ -413,6 +413,7 @@ def create_fib_agent(
     )
 
 
-configure_oauth()
-
-agent = create_fib_agent(model="gemini-2.5-flash", configure_auth=False)
+def get_default_agent():
+    """Lazy initialization of the default agent (for LangGraph Studio)."""
+    configure_oauth()
+    return create_fib_agent(model="gemini-2.5-flash", configure_auth=False)
