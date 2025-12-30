@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "upc-fib-agent": {
+      "command": "/home/ignasi/.local/bin/uv",
+      "args": [
+        "--directory", "/home/ignasi/Documents/MDS/Q5/HLE/upc-fib-agent",
+        "run", "python3", "-m", "src.mcp"
+      ]
+    }
+  },
+  "preferences": {
+    "legacyQuickEntryEnabled": false,
+    "menuBarEnabled": false
+  }
+}
