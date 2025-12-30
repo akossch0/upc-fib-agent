@@ -127,3 +127,41 @@ Tool appropriateness scores are affected by the hierarchical architecture. When 
 
 \subsubsection{Model Comparison}
 Gemini Flash and Pro achieved nearly identical overall scores. The Pro model showed marginal advantages in helpfulness and structure, providing slightly more comprehensive and better-formatted responses. Conversely, Flash showed advantages in conciseness and error handling, offering less verbose responses. Given the minimal quality difference and Flash's faster response times and lower cost, Gemini 2.5 Flash is recommended as the default model for this application.
+
+\subsection{Local Model Experiments}
+
+To explore deployment options without cloud dependencies, we evaluated two local models using llama-cpp-python: Qwen 2.5 7B Instruct and Llama 3.2 3B Instruct, both in Q4\_K\_M quantization. This required implementing a custom \texttt{ChatLlamaCppTools} wrapper that formats tool definitions using Qwen's XML-based tool calling syntax, as the standard LangChain integration does not reliably generate tool calls with local models.
+
+\subsubsection{Local Model Results}
+
+\tabref{tab:local-model-results} compares the local models against the cloud-based Gemini models. We tested each local model at two temperature settings (0.1 and 0.5) to assess the impact of sampling randomness on tool-calling reliability.
+
+\begin{table}[H]
+    \centering
+    \caption{Evaluation results comparing cloud and local models}
+    \label{tab:local-model-results}
+    \begin{tabular}{llrrr}
+        \toprule
+        \textbf{Model} & \textbf{Temp} & \textbf{Relevance} & \textbf{Helpfulness} & \textbf{Tool Approp.} \\
+        \midrule
+        Gemini 2.5 Flash & -- & 0.90 & 0.89 & 0.77 \\
+        Gemini 2.5 Pro & -- & 0.89 & 0.93 & 0.78 \\
+        \midrule
+        Qwen 2.5 7B & 0.1 & 0.74 & 0.80 & 0.42 \\
+        Qwen 2.5 7B & 0.5 & 0.74 & 0.80 & 0.43 \\
+        \midrule
+        Llama 3.2 3B & 0.1 & 0.22 & 0.29 & 0.10 \\
+        Llama 3.2 3B & 0.5 & 0.22 & 0.32 & 0.09 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection{Analysis}
+
+The results reveal a significant capability gap between model sizes for agentic tasks. Qwen 2.5 7B achieves approximately 80\% of Gemini's relevance and helpfulness scores, demonstrating that mid-sized local models can handle straightforward queries. However, its tool appropriateness score (0.42) is notably lower than Gemini's (0.77), indicating difficulties with complex multi-step tool orchestration.
+
+Llama 3.2 3B performs poorly across all metrics, with relevance below 0.25. Analysis of the inference logs reveals that the 3B model frequently fails to generate properly formatted tool calls, often responding with generic text instead of invoking the appropriate API tools. This suggests that reliable agentic behavior requires models above a certain capability threshold.
+
+Interestingly, temperature has negligible impact on performance for either local model. This contrasts with common intuition that lower temperatures improve tool-calling reliability, and suggests that the primary bottleneck is model capability rather than sampling strategy.
+
+These findings support using Gemini for production deployments while demonstrating that local models like Qwen 2.5 7B could serve as cost-effective alternatives for simpler use cases or privacy-sensitive environments. The modular model strategy pattern in our implementation enables easy swapping between cloud and local backends.
