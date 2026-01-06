@@ -6,6 +6,7 @@ at the root level for user-specific data access.
 """
 
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Literal
 
 from deepagents import create_deep_agent
@@ -183,7 +184,9 @@ Students often ask vague questions assuming you know their context. Before answe
 
 ### Date and Time Handling
 
-You are aware of the current date from context. For date-relative queries:
+**Current date: {current_date} ({current_weekday}, weekday {current_weekday_num})**
+
+For date-relative queries:
 
 1. **Schedule queries** ("What do I have tomorrow?"):
    - Determine the day of week (Monday, Tuesday, etc.) for the target date
@@ -372,6 +375,23 @@ def create_model_strategy(model: str | BaseChatModel) -> ModelStrategy:
     return CustomModelStrategy(model)
 
 
+WEEKDAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+
+def _get_formatted_system_prompt() -> str:
+    """Format the system prompt with the current date context."""
+    now = datetime.now()
+    weekday_num = now.isoweekday()  # Monday=1, Sunday=7
+    weekday_name = WEEKDAY_NAMES[weekday_num - 1]
+    current_date = now.strftime("%Y-%m-%d")
+
+    return FIB_SYSTEM_PROMPT.format(
+        current_date=current_date,
+        current_weekday=weekday_name,
+        current_weekday_num=weekday_num,
+    )
+
+
 def create_fib_agent(
     model: str | BaseChatModel | ModelStrategy = "gemini-2.5-flash",
     include_internet_search: bool = True,
@@ -408,7 +428,7 @@ def create_fib_agent(
     return create_deep_agent(
         tools=tools,
         subagents=[PUBLIC_FIB_SUBAGENT],
-        system_prompt=FIB_SYSTEM_PROMPT,
+        system_prompt=_get_formatted_system_prompt(),
         model=resolved_model,
     )
 
