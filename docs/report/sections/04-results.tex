@@ -13,7 +13,7 @@ This section presents the evaluation methodology, quantitative results, and qual
 \subsection{Experimental Setup}
 
 \subsubsection{Models Tested}
-We evaluated two Gemini models as the agent backbone. Gemini 2.5 Flash was tested as a fast, cost-effective model optimized for speed, while Gemini 2.5 Pro was evaluated for its higher capacity for complex reasoning. Both models were accessed through Google Vertex AI using application default credentials.
+We evaluated three Gemini models as the agent backbone. Gemini 3 Flash (preview) represents the latest generation with improved instruction following. Gemini 2.5 Flash was tested as a fast, cost-effective model optimized for speed, while Gemini 2.5 Pro was evaluated for its higher capacity for complex reasoning. All Gemini models were accessed through Google Vertex AI using application default credentials. Additionally, we evaluated two local open-source models - Qwen 2.5 7B and Llama 3.2 3B - to explore privacy-preserving deployment options.
 
 \subsubsection{Evaluation Judge}
 For the LLM-as-judge evaluation, we employed Gemini 2.5 Flash Lite as the evaluator model. This lighter model provided sufficient capability for rubric-based scoring while maintaining cost efficiency across the substantial evaluation set, which involved 315 evaluations per run (45 questions multiplied by 7 metrics).
@@ -50,30 +50,33 @@ We defined seven evaluation metrics, each accompanied by a detailed persona, rub
 
 \subsection{Quantitative Results}
 
-\tabref{tab:results-comparison} presents the average scores across all 45 questions for both models.
+\tabref{tab:results-comparison} presents the average scores across all 45 questions for all evaluated models, comparing proprietary Gemini models against open-source alternatives.
 
 \begin{table}[H]
     \centering
-    \caption{Evaluation results comparing Gemini Flash and Pro models}
+    \caption{Evaluation results comparing proprietary and open-source models. Best scores per metric in bold.}
     \label{tab:results-comparison}
-    \begin{tabular}{lrrr}
+    \small
+    \begin{tabular}{lcccccc}
         \toprule
-        \textbf{Metric} & \textbf{Flash} & \textbf{Pro} & \textbf{Target} \\
+        \textbf{Metric} & \textbf{Target} & \textbf{G3 Flash} & \textbf{G2.5 Flash} & \textbf{G2.5 Pro} & \textbf{Qwen 7B} & \textbf{Llama 3B} \\
         \midrule
-        Relevance & 0.90 & 0.89 & $>$0.85 \\
-        Helpfulness & 0.89 & 0.93 & $>$0.85 \\
-        Conciseness & 0.85 & 0.83 & $>$0.80 \\
-        Structure & 0.77 & 0.80 & $>$0.75 \\
-        Tone & 0.85 & 0.85 & $>$0.80 \\
-        Error Handling & 0.51 & 0.43 & $>$0.70 \\
-        Tool Appropriateness & 0.77 & 0.78 & $>$0.80 \\
+        Relevance & $>$0.85 & \textbf{0.98} & 0.90 & 0.89 & 0.74 & 0.22 \\
+        Helpfulness & $>$0.85 & \textbf{0.99} & 0.89 & 0.93 & 0.80 & 0.32 \\
+        Conciseness & $>$0.80 & \textbf{0.87} & 0.85 & 0.83 & 0.69 & 0.28 \\
+        Structure & $>$0.75 & 0.79 & 0.77 & \textbf{0.80} & 0.76 & 0.29 \\
+        Tone & $>$0.80 & \textbf{0.89} & 0.85 & 0.85 & 0.81 & 0.37 \\
+        Error Handling & $>$0.70 & \textbf{0.74} & 0.51 & 0.43 & 0.29 & 0.08 \\
+        Tool Approp. & $>$0.80 & 0.75 & 0.77 & \textbf{0.78} & 0.43 & 0.09 \\
         \midrule
-        \textbf{Average} & \textbf{0.79} & \textbf{0.79} & --- \\
+        \textbf{Average} & --- & \textbf{0.86} & 0.79 & 0.79 & 0.65 & 0.24 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Several key observations emerge from these results. Both models achieve the target threshold for relevance and helpfulness, which are the two most critical metrics for user satisfaction. Conciseness, structure, and tone also meet their respective targets, indicating that the responses are well-formatted and professional. However, error handling significantly underperforms the target, a result that analysis suggests is partly due to overly strict rubric interpretation. Tool appropriateness is slightly below target, which is affected by the indirect tool calls inherent in subagent delegation.
+Several key observations emerge from these results. Gemini 3 Flash achieves the best overall performance (0.86 average) and is the only model to pass the error handling threshold (0.74 vs.\ the 0.70 target). The Gemini 2.5 models achieve identical average scores (0.79), with both meeting targets for relevance, helpfulness, conciseness, structure, and tone. Error handling remains challenging for the 2.5 generation, which analysis suggests is partly due to overly strict rubric interpretation combined with verbose error messages. Tool appropriateness is slightly below target across all Gemini models, affected by the indirect tool calls inherent in subagent delegation.
+
+A clear capability gap exists between proprietary and open-source models. Qwen 2.5 7B achieves a reasonable 0.65 average, demonstrating that mid-sized local models can handle straightforward queries, though tool appropriateness (0.43) reveals difficulties with multi-step tool orchestration. Llama 3.2 3B performs poorly across all metrics (0.24 average), indicating that reliable agentic behavior requires models above a certain capability threshold.
 
 \subsubsection{Performance by Category}
 
@@ -81,27 +84,27 @@ Several key observations emerge from these results. Both models achieve the targ
 
 \begin{table}[H]
     \centering
-    \caption{Relevance scores by question category (Flash model)}
+    \caption{Relevance scores by question category (Gemini 3 Flash)}
     \label{tab:category-performance}
     \begin{tabular}{lr}
         \toprule
         \textbf{Category} & \textbf{Avg. Relevance} \\
         \midrule
-        courses & 0.95 \\
-        exams & 0.92 \\
-        professors & 0.88 \\
-        classrooms & 0.90 \\
-        academic & 0.95 \\
-        news & 0.87 \\
-        personal & 0.85 \\
-        multi\_tool & 0.82 \\
-        ambiguous & 0.93 \\
-        web\_search & 0.90 \\
+        courses & 1.00 \\
+        exams & 1.00 \\
+        professors & 1.00 \\
+        classrooms & 1.00 \\
+        academic & 1.00 \\
+        news & 1.00 \\
+        personal & 1.00 \\
+        multi\_tool & 0.98 \\
+        ambiguous & 0.77 \\
+        web\_search & 1.00 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-Simple factual queries regarding courses, exams, and academic terms achieve the highest scores. Ambiguous queries also score well because the agent appropriately asks for clarification, behavior that the rubric explicitly scores as relevant for vague queries.
+Gemini 3 Flash achieves perfect relevance scores (1.00) across eight categories, demonstrating robust handling of factual queries about courses, exams, professors, classrooms, academic terms, news, personal data, and web searches. Multi-tool queries score nearly perfect (0.98). Notably, ambiguous queries show the lowest performance (0.77), indicating that the model tends to attempt direct answers rather than asking for clarification - behavior that the rubric penalizes for vague queries where clarification would be more appropriate.
 
 \subsection{Qualitative Analysis}
 
@@ -126,7 +129,9 @@ The error handling metric significantly underperforms expectations. Upon analysi
 Tool appropriateness scores are affected by the hierarchical architecture. When the root agent delegates to the subagent via the task tool, the evaluation only sees "task" as the tool call, not the underlying tools called by the subagent. This is a limitation of the current evaluation framework that could be addressed by flattening tool call trajectories across agent boundaries or by scoring delegation as appropriate when the subagent handles the query correctly.
 
 \subsubsection{Model Comparison}
-Gemini Flash and Pro achieved nearly identical overall scores. The Pro model showed marginal advantages in helpfulness and structure, providing slightly more comprehensive and better-formatted responses. Conversely, Flash showed advantages in conciseness and error handling, offering less verbose responses. Given the minimal quality difference and Flash's faster response times and lower cost, Gemini 2.5 Flash is recommended as the default model for this application.
+Gemini 3 Flash demonstrates significant improvements over the 2.5 generation, particularly in error handling (0.74 vs.\ 0.51) and core metrics like relevance (0.98) and helpfulness (0.99). This suggests that newer model generations benefit substantially from improved instruction following and tool use capabilities.
+
+Within the 2.5 generation, Flash and Pro achieved nearly identical overall scores (0.79). The Pro model showed marginal advantages in helpfulness and structure, providing slightly more comprehensive and better-formatted responses. Conversely, Flash showed advantages in conciseness, offering less verbose responses. Given the minimal quality difference and Flash's faster response times and lower cost, Gemini 2.5 Flash remains a cost-effective choice, though Gemini 3 Flash is recommended for production deployments where quality is paramount.
 
 \subsection{Local Model Experiments}
 
@@ -134,7 +139,7 @@ To explore deployment options without cloud dependencies, we evaluated two local
 
 \subsubsection{Local Model Results}
 
-\tabref{tab:local-model-results} compares the local models against the cloud-based Gemini models. We tested each local model at two temperature settings (0.1 and 0.5) to assess the impact of sampling randomness on tool-calling reliability.
+\tabref{tab:local-model-results} compares the local models against the cloud-based Gemini models on key metrics. We tested each local model at two temperature settings (0.1 and 0.5) to assess the impact of sampling randomness on tool-calling reliability.
 
 \begin{table}[H]
     \centering
@@ -144,6 +149,7 @@ To explore deployment options without cloud dependencies, we evaluated two local
         \toprule
         \textbf{Model} & \textbf{Temp} & \textbf{Relevance} & \textbf{Helpfulness} & \textbf{Tool Approp.} \\
         \midrule
+        Gemini 3 Flash & -- & 0.98 & 0.99 & 0.75 \\
         Gemini 2.5 Flash & -- & 0.90 & 0.89 & 0.77 \\
         Gemini 2.5 Pro & -- & 0.89 & 0.93 & 0.78 \\
         \midrule
@@ -158,10 +164,10 @@ To explore deployment options without cloud dependencies, we evaluated two local
 
 \subsubsection{Analysis}
 
-The results reveal a significant capability gap between model sizes for agentic tasks. Qwen 2.5 7B achieves approximately 80\% of Gemini's relevance and helpfulness scores, demonstrating that mid-sized local models can handle straightforward queries. However, its tool appropriateness score (0.42) is notably lower than Gemini's (0.77), indicating difficulties with complex multi-step tool orchestration.
+The results reveal a significant capability gap between model sizes for agentic tasks. Qwen 2.5 7B achieves approximately 75--80\% of Gemini 2.5's relevance and helpfulness scores, demonstrating that mid-sized local models can handle straightforward queries. However, its tool appropriateness score (0.42) is notably lower than the Gemini models (0.75--0.78), indicating difficulties with complex multi-step tool orchestration. Gemini 3 Flash sets a new benchmark with near-perfect relevance (0.98) and helpfulness (0.99) scores.
 
 Llama 3.2 3B performs poorly across all metrics, with relevance below 0.25. Analysis of the inference logs reveals that the 3B model frequently fails to generate properly formatted tool calls, often responding with generic text instead of invoking the appropriate API tools. This suggests that reliable agentic behavior requires models above a certain capability threshold.
 
 Interestingly, temperature has negligible impact on performance for either local model. This contrasts with common intuition that lower temperatures improve tool-calling reliability, and suggests that the primary bottleneck is model capability rather than sampling strategy.
 
-These findings support using Gemini for production deployments while demonstrating that local models like Qwen 2.5 7B could serve as cost-effective alternatives for simpler use cases or privacy-sensitive environments. The modular model strategy pattern in our implementation enables easy swapping between cloud and local backends.
+These findings support using Gemini 3 Flash for production deployments where quality is paramount, while demonstrating that local models like Qwen 2.5 7B could serve as cost-effective alternatives for simpler use cases or privacy-sensitive environments. The modular model strategy pattern in our implementation enables easy swapping between cloud and local backends.

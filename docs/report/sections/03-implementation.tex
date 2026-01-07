@@ -30,7 +30,7 @@ The tool layer wraps the API client methods into Python functions accessible to 
 
 \subsubsection{Agent Creation}
 
-The agent is instantiated using a factory function that configures the authentication and selects the appropriate model strategy. The design supports different backend models, such as various versions of Gemini or local open-source models, through a flexible strategy pattern. The creation process assembles the toolset, including private tools and optional internet search, and initializes the hierarchical structure with the public subagent. This configuration ensures that the agent is correctly set up with the necessary capabilities and system prompts before handling user queries.
+The agent is instantiated using a factory function that configures the authentication and selects the appropriate model strategy. The design supports different backend models, such as various versions of Gemini (3 Flash, 2.5 Flash, 2.5 Pro) or local open-source models, through a flexible strategy pattern. The creation process assembles the toolset, including private tools and optional internet search, and initializes the hierarchical structure with the public subagent. This configuration ensures that the agent is correctly set up with the necessary capabilities and system prompts before handling user queries.
 
 \begin{figure}[htbp]
     \centering

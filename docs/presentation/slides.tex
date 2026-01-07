@@ -215,58 +215,37 @@
 \end{frame}
 
 % =============================================================================
-% SLIDE 7: Live Example Flow
-% =============================================================================
-\begin{frame}{Example: ``When is my next exam?''}
-  \centering
-  \begin{tikzpicture}[
-    box/.style={rectangle, draw=upcblue, fill=upcblue!10, rounded corners, minimum width=6cm, minimum height=0.5cm, align=center, font=\small},
-    arrow/.style={->, thick, upcblue}
-  ]
-    \node[box] at (0, 0)    (user)     {User: ``When is my next exam?''};
-    \node[box] at (0, -1)   (detect)   {Detect: personal context needed};
-    \node[box] at (0, -2)   (courses)  {\texttt{get\_my\_courses()} $\rightarrow$ [BD, EDA, IA]};
-    \node[box] at (0, -3)   (delegate) {Delegate to Public Subagent};
-    \node[box] at (0, -4)   (exams)    {\texttt{search\_exams()} for each course};
-    \node[box] at (0, -5)   (response) {``Your next exam is BD on Jan 15...''};
-    
-    \draw[arrow] (user) -- (detect);
-    \draw[arrow] (detect) -- (courses);
-    \draw[arrow] (courses) -- (delegate);
-    \draw[arrow] (delegate) -- (exams);
-    \draw[arrow] (exams) -- (response);
-  \end{tikzpicture}
-  \note{Let's trace through a real example. The user asks about their next exam. The agent detects personal context is needed, gets enrolled courses, delegates exam search to the subagent, and returns the answer.}
-\end{frame}
-
-% =============================================================================
 % SLIDE 8: Prompt Engineering Highlights
 % =============================================================================
 \begin{frame}{Prompt Engineering Highlights}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.52\textwidth}
-      \textbf{Key techniques in system prompts:}
-      \vspace{0.5em}
+      \textbf{Structured reasoning framework:}
+      \vspace{0.3em}
       \begin{itemize}
-        \item \textbf{Context detection}
+        \item \textbf{Think-Plan-Execute pattern}
         \begin{itemize}
-          \item ``my exam'' $\rightarrow$ check enrolled courses first
-          \item ``tomorrow'' $\rightarrow$ resolve to weekday
+          \item Analyze query $\rightarrow$ identify implicit context
+          \item Plan tool calls $\rightarrow$ execute systematically
         \end{itemize}
-        \vspace{0.3em}
-        \item \textbf{Date reasoning}
+        \vspace{0.2em}
+        \item \textbf{Implicit assumption detection}
         \begin{itemize}
-          \item Explicit weekday mappings (Monday=1)
-          \item Current date in context
+          \item ``my exam'' $\rightarrow$ fetch enrolled courses first
+          \item ``tomorrow'' $\rightarrow$ map to weekday number
         \end{itemize}
-        \vspace{0.3em}
-        \item \textbf{Disambiguation strategy}
+        \vspace{0.2em}
+        \item \textbf{Disambiguation with action}
         \begin{itemize}
-          \item ``Machine Learning'' $\rightarrow$ multiple matches
-          \item Present top options, ask for clarification
+          \item Present top 2--3 matches with context
+          \item Then ask for clarification (not just list all)
         \end{itemize}
-        \vspace{0.3em}
-        \item \textbf{Quality checklist} before responding
+        \vspace{0.2em}
+        \item \textbf{Reflect-before-respond checklist}
+        \begin{itemize}
+          \item Validate data, check completeness
+          \item Remove hedging (``it's possible...'')
+        \end{itemize}
       \end{itemize}
     \end{column}
     \begin{column}{0.45\textwidth}
@@ -274,7 +253,7 @@
       \includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{assets/s08_prompts.png}
     \end{column}
   \end{columns}
-  \note{Prompt engineering is crucial. We handle implicit context, provide date mappings so the agent doesn't need internet search, and define strategies for ambiguous queries.}
+  \note{Prompt engineering is crucial. The Think-Plan-Execute pattern guides reasoning, implicit assumptions are detected and resolved, and a reflect-before-respond checklist ensures quality.}
 \end{frame}
 
 % =============================================================================
@@ -312,6 +291,52 @@
 \begin{frame}[plain]
   \centering
   \includegraphics[width=0.92\textwidth,height=0.92\textheight,keepaspectratio]{assets/evaluation-pipeline.png}
+\end{frame}
+
+% =============================================================================
+% SLIDE 9c: Iterative Prompt Refinement
+% =============================================================================
+\begin{frame}{Iterative Prompt Refinement with LLM-as-Judge}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.55\textwidth}
+      \textbf{Agent-driven prompt optimization:}
+      \vspace{0.5em}
+      \begin{enumerate}
+        \item Run evaluation $\rightarrow$ identify weak points
+        \item Coding agent analyzes failure patterns
+        \item Targeted prompt updates based on errors
+        \item Re-evaluate $\rightarrow$ iterate until targets met
+      \end{enumerate}
+      \vspace{0.5em}
+      \textbf{Example refinements discovered:}
+      \begin{itemize}
+        \item Added BAD vs GOOD response examples
+        \item Explicit ``do NOT use internet search'' rules
+        \item Course disambiguation: act first, then clarify
+        \item Weekday mappings to avoid date confusion
+      \end{itemize}
+      \vspace{0.5em}
+      \small\textit{This agentic prompt optimization approach is becoming increasingly common in production LLM systems.}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      \begin{tikzpicture}[
+        box/.style={rectangle, draw=upcblue, fill=upcblue!10, rounded corners, minimum width=3.2cm, minimum height=0.6cm, align=center, font=\footnotesize},
+        arrow/.style={->, thick, upcblue}
+      ]
+        \node[box] at (0, 0)    (eval)   {Run Evaluation};
+        \node[box] at (0, -1.3) (analyze){Analyze Errors};
+        \node[box] at (0, -2.6) (update) {Update Prompts};
+        \node[box] at (0, -3.9) (test)   {Re-evaluate};
+        
+        \draw[arrow] (eval) -- (analyze);
+        \draw[arrow] (analyze) -- (update);
+        \draw[arrow] (update) -- (test);
+        \draw[arrow, rounded corners=8pt] (test.east) -- ++(0.8,0) -- ++(0,3.9) -- (eval.east);
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \note{The LLM-as-judge framework enabled iterative prompt refinement. A coding agent analyzed evaluation failures and updated the system prompt accordingly. This agentic optimization loop is becoming standard practice.}
 \end{frame}
 
 % =============================================================================
@@ -361,49 +386,34 @@
 % =============================================================================
 % SLIDE 11: Results - The Numbers
 % =============================================================================
-\begin{frame}{Results: Meeting Our Targets}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \textbf{Gemini 2.5 Flash Results}
-      \vspace{0.3em}
-      \begin{table}
-        \footnotesize
-        \begin{tabular}{lrrl}
-          \toprule
-          Metric & Score & Target & \\
-          \midrule
-          Relevance & 0.90 & $>$0.85 & \textcolor{green!60!black}{\checkmark} \\
-          Helpfulness & 0.89 & $>$0.85 & \textcolor{green!60!black}{\checkmark} \\
-          Conciseness & 0.85 & $>$0.80 & \textcolor{green!60!black}{\checkmark} \\
-          Structure & 0.77 & $>$0.75 & \textcolor{green!60!black}{\checkmark} \\
-          Tone & 0.85 & $>$0.80 & \textcolor{green!60!black}{\checkmark} \\
-          Error Handling & 0.51 & $>$0.70 & \textcolor{red!70!black}{$\times$} \\
-          Tool Approp. & 0.77 & $>$0.80 & \textcolor{orange!80!black}{$\sim$} \\
-          \midrule
-          \textbf{Average} & \textbf{0.79} & & \\
-          \bottomrule
-        \end{tabular}
-      \end{table}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \textbf{Key Findings}
-      \vspace{0.5em}
-      \begin{itemize}
-        \item Core metrics (relevance, helpfulness) exceed targets
-        \item Flash vs Pro: nearly identical scores
-        \item Flash recommended: faster, cheaper
-      \end{itemize}
-      \vspace{0.5em}
-      \textbf{Top Categories (Relevance)}
-      \begin{itemize}
-        \item courses: 0.95
-        \item academic: 0.95
-        \item ambiguous: 0.93
-        \item exams: 0.92
-      \end{itemize}
-    \end{column}
-  \end{columns}
-  \note{We meet targets on core metrics. Relevance and helpfulness - the most important for users - score 0.90 and 0.89. Error handling underperforms due to rubric issues we'll discuss.}
+\begin{frame}{Results: Model Comparison}
+  \begin{table}
+    \scriptsize
+    \centering
+    \begin{tabular}{lcccccc}
+      \toprule
+      Metric & Target & \textbf{Gemini 3 Flash} & \textbf{Gemini 2.5 Flash} & \textbf{Gemini 2.5 Pro} & \textbf{Qwen 7B} & \textbf{Llama 3B} \\
+      \midrule
+      Relevance & $>$0.85 & \textcolor{green!60!black}{0.98} & \textcolor{green!60!black}{0.90} & \textcolor{green!60!black}{0.89} & \textcolor{red!70!black}{0.74} & \textcolor{red!70!black}{0.22} \\
+      Helpfulness & $>$0.85 & \textcolor{green!60!black}{0.99} & \textcolor{green!60!black}{0.89} & \textcolor{green!60!black}{0.93} & \textcolor{red!70!black}{0.80} & \textcolor{red!70!black}{0.32} \\
+      Conciseness & $>$0.80 & \textcolor{green!60!black}{0.87} & \textcolor{green!60!black}{0.85} & \textcolor{green!60!black}{0.83} & \textcolor{red!70!black}{0.69} & \textcolor{red!70!black}{0.28} \\
+      Structure & $>$0.75 & \textcolor{green!60!black}{0.79} & \textcolor{green!60!black}{0.77} & \textcolor{green!60!black}{0.80} & \textcolor{green!60!black}{0.76} & \textcolor{red!70!black}{0.29} \\
+      Tone & $>$0.80 & \textcolor{green!60!black}{0.89} & \textcolor{green!60!black}{0.85} & \textcolor{green!60!black}{0.85} & \textcolor{green!60!black}{0.81} & \textcolor{red!70!black}{0.37} \\
+      Error Handling & $>$0.70 & \textcolor{green!60!black}{0.74} & \textcolor{red!70!black}{0.51} & \textcolor{red!70!black}{0.43} & \textcolor{red!70!black}{0.29} & \textcolor{red!70!black}{0.08} \\
+      Tool Approp. & $>$0.80 & \textcolor{orange!80!black}{0.75} & \textcolor{orange!80!black}{0.77} & \textcolor{orange!80!black}{0.78} & \textcolor{red!70!black}{0.43} & \textcolor{red!70!black}{0.09} \\
+      \midrule
+      \textbf{Average} & & \textbf{0.86} & \textbf{0.79} & \textbf{0.79} & \textbf{0.65} & \textbf{0.24} \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  \vspace{0.3em}
+  \textbf{Key Findings}
+  \begin{itemize}
+    \item Gemini 3 Flash: best overall (0.86 avg), only model to pass error handling
+    \item Gemini 2.5 models: solid performance, Flash \& Pro nearly identical
+    \item Open-source: Qwen 7B reasonable (0.65), Llama 3B insufficient (0.24)
+  \end{itemize}
+  \note{Gemini 3 Flash shows significant improvement, especially in error handling (0.74 vs 0.51). Clear performance gap between proprietary and open-source models. Qwen shows promise but struggles with tool use.}
 \end{frame}
 
 % =============================================================================
