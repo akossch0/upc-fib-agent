@@ -11,6 +11,7 @@ from typing import Literal
 
 from deepagents import create_deep_agent
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_google_genai import ChatGoogleGenerativeAI
 from tavily import TavilyClient
 
 from src.api import configure_oauth
@@ -30,7 +31,10 @@ from src.tools import (
     search_professors,
 )
 
-GEMINI_MODELS = frozenset({"gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"})
+GEMINI_MODELS = frozenset({"gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-3-flash-preview"})
+
+# Models that require the google-genai SDK (not yet in langchain-google-vertexai)
+GENAI_SDK_MODELS = frozenset({"gemini-3-flash-preview"})
 
 
 class ModelStrategy(ABC):
@@ -50,7 +54,9 @@ class GeminiModelStrategy(ModelStrategy):
             raise ValueError(f"Unknown Gemini model: {model_name}. Supported: {GEMINI_MODELS}")
         self._model_name = model_name
 
-    def get_model(self) -> str:
+    def get_model(self) -> str | BaseChatModel:
+        if self._model_name in GENAI_SDK_MODELS:
+            return ChatGoogleGenerativeAI(model=self._model_name, vertexai=True, location="global")
         return self._model_name
 
 
