@@ -8,7 +8,7 @@
 \usetikzlibrary{positioning}
 
 \title{A Conversational AI Agent for FIB}
-\subtitle{Hierarchical Design and LLM-as-Judge Evaluation}
+\subtitle{Agent Harness Design and LLM-as-Judge Evaluation}
 \author[Ákos Schneider, Ignasi Cervero]{Ákos Schneider \and Ignasi Cervero}
 \institute[]{Facultat d'Informàtica de Barcelona\\Universitat Politècnica de Catalunya}
 \date{Human Language Engineering}
@@ -96,36 +96,38 @@
 % =============================================================================
 % SLIDE 4: Architecture Overview
 % =============================================================================
-\begin{frame}{Architecture: Hierarchical Agent Design}
+\begin{frame}{Architecture: Agent Harness Paradigm}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.48\textwidth}
-      \textbf{Two-level hierarchy:}
-      \vspace{0.5em}
+      \small
+      \textbf{The Agent Harness Pattern:}
       \begin{itemize}
-        \item \textbf{Root Agent}
-        \begin{itemize}
-          \item User context \& authentication
-          \item Private tools (OAuth)
-          \item Internet search fallback
-          \item Task delegation
-        \end{itemize}
-        \vspace{0.5em}
-        \item \textbf{Public Subagent}
-        \begin{itemize}
-          \item Specialized for FIB API
-          \item Focused system prompt
-          \item Public data queries
-        \end{itemize}
+        \setlength{\itemsep}{0.1em}
+        \item LLM as reasoning core in agentic loop
+        \item Tools + memory + orchestration
+        \item Popularized by Cursor, Devin, Claude Code
       \end{itemize}
-      \vspace{0.5em}
-      \textbf{Benefits:} Focused prompts, security boundary, modularity
+      \vspace{0.2em}
+      \textbf{Our Two-Level Hierarchy:}
+      \begin{itemize}
+        \setlength{\itemsep}{0.1em}
+        \item \textbf{Root Agent} -- context, auth, delegation
+        \item \textbf{Public Subagent} -- FIB API tools
+      \end{itemize}
+      \vspace{0.2em}
+      \textbf{DeepAgents Insight:}
+      \begin{itemize}
+        \setlength{\itemsep}{0.1em}
+        \item Hierarchical decomposition scales
+        \item Focused prompts $>$ monolithic agents
+      \end{itemize}
     \end{column}
     \begin{column}{0.50\textwidth}
       \centering
       \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{assets/s04_architecture.png}
     \end{column}
   \end{columns}
-  \note{We use a hierarchical design. The root agent handles user context and private tools, delegating public queries to a specialized subagent. This separation provides focused prompts and security boundaries.}
+  \note{We adopt the agent harness paradigm from modern coding agents like Cursor and Devin. The LLM reasons in a loop with tools. DeepAgents research shows hierarchical decomposition scales better than monolithic prompts.}
 \end{frame}
 
 % =============================================================================
@@ -176,46 +178,7 @@
 \end{frame}
 
 % =============================================================================
-% SLIDE 6: How It Works - ReAct Loop
-% =============================================================================
-\begin{frame}{How It Works: The ReAct Loop}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \textbf{Reasoning + Acting paradigm:}
-      \vspace{0.5em}
-      \begin{enumerate}
-        \item \textbf{Thought} -- Reason about the query
-        \item \textbf{Action} -- Call appropriate tool
-        \item \textbf{Observation} -- Process result
-        \item \textbf{Repeat} until answer ready
-      \end{enumerate}
-      \vspace{1em}
-      \textbf{Example thought process:}
-      \begin{itemize}
-        \item[$\rightarrow$] ``User wants exam info''
-        \item[$\rightarrow$] ``Need their enrolled courses first''
-        \item[$\rightarrow$] Call \texttt{get\_my\_courses()}
-        \item[$\rightarrow$] ``Got [BD, EDA, IA], now search exams''
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.50\textwidth}
-      \centering
-      \includegraphics[width=\linewidth,height=0.78\textheight,keepaspectratio]{assets/s06_agentflow.png}
-    \end{column}
-  \end{columns}
-  \note{The agent follows the ReAct paradigm - interleaving reasoning with actions. It thinks about what's needed, calls tools, observes results, and iterates until it can answer.}
-\end{frame}
-
-% =============================================================================
-% SLIDE 6b: Agent Flow (Full Screen)
-% =============================================================================
-\begin{frame}[plain]
-  \centering
-  \includegraphics[width=0.92\textwidth,height=0.92\textheight,keepaspectratio]{assets/agent-flow.png}
-\end{frame}
-
-% =============================================================================
-% SLIDE 8: Prompt Engineering Highlights
+% SLIDE 6: Prompt Engineering Highlights
 % =============================================================================
 \begin{frame}{Prompt Engineering Highlights}
   \begin{columns}[T,onlytextwidth]
